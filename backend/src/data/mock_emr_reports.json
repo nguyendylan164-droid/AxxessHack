@@ -1,0 +1,32 @@
+[
+  {
+    "userId": "user_001",
+    "lastVisit": "2025-02-10",
+    "conditions": ["Type 2 Diabetes", "Hypertension", "GERD"],
+    "medications": ["Metformin 500mg twice daily", "Lisinopril 10mg daily", "Omeprazole 20mg as needed"],
+    "procedures": [],
+    "vitals": {"bp": "128/82", "weight": "72kg", "a1c": "6.8"},
+    "visitNotes": "Patient reports improved diet compliance. Blood sugar readings mostly in range. Advised to continue medication, monitor blood pressure at home, and schedule eye exam for diabetes screening. Follow up in 6 weeks.",
+    "alerts": ["A1C slightly elevated - reinforce diet adherence"]
+  },
+  {
+    "userId": "user_002",
+    "lastVisit": "2025-02-12",
+    "conditions": ["Post-knee replacement recovery", "Osteoarthritis", "Hyperlipidemia"],
+    "medications": ["Warfarin 5mg daily", "Atorvastatin 20mg", "Acetaminophen 500mg as needed"],
+    "procedures": ["Total knee replacement - 4 weeks ago"],
+    "vitals": {"bp": "135/88", "weight": "89kg"},
+    "visitNotes": "Patient progressing well post-surgery. ROM improving. Still using cane for distance. No signs of DVT or infection. Warfarin levels therapeutic. Continue PT 3x/week. Watch for swelling, fever, or increased pain. Follow up in 2 weeks.",
+    "alerts": ["Post-op anticoagulation - monitor for bleeding, bruising"]
+  },
+  {
+    "userId": "user_003",
+    "lastVisit": "2025-02-08",
+    "conditions": ["Asthma", "Seasonal allergies"],
+    "medications": ["Albuterol inhaler PRN", "Fluticasone 250mcg daily", "Loratadine 10mg daily"],
+    "procedures": [],
+    "vitals": {"bp": "118/76", "respiratory": "clear"},
+    "visitNotes": "Asthma well controlled on current regimen. Patient reports occasional night cough. Allergy season approaching - continue daily controller. PEF values within personal best. Follow up in 3 months or sooner if symptoms worsen.",
+    "alerts": []
+  }
+]

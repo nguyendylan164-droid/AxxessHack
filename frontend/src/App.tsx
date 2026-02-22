@@ -4,6 +4,7 @@ import { useAuth } from './contexts/AuthContext'
 import { usePatientSelection } from './contexts/PatientSelectionContext'
 import { getClients, type ClientOption } from './data/api'
 import { Home } from './pages/Home'
+import { Recording } from './pages/Recording'
 import { About } from './pages/About'
 import { Login } from './pages/Login'
 import { SignUp } from './pages/SignUp'
@@ -50,6 +51,7 @@ function Layout() {
         <div className="navbar-inner">
           <img src = "/Logo.png" alt="Axxess Logo" className="Logo"/>
           <Link to="/" className="nav-link">Clinician</Link>
+          <Link to="/recording" className="nav-link">Recording</Link>
           <Link to="/about" className="nav-link">About</Link>
           {!loading && session && isClinician && (
             <div className="nav-patient-wrap">
@@ -115,6 +117,7 @@ function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
+        <Route path="/recording" element={<Recording />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />

@@ -15,9 +15,11 @@ def _strip_code_fences(text: str) -> str:
         text = "\n".join(lines).strip()
     return text
 
-def generate_questions(emr_report: Dict[str, Any]) -> List[Dict[str, Any]]:
+def generate_questions(emr_report: Dict[str, Any], transcript_emr: str) -> List[Dict[str, Any]]:
     if not emr_report:
         raise ValueError("emr_report is required")
+    if not transcript_emr or not transcript_emr.strip():
+        raise ValueError("transcript_emr is required")
 
     emr_text = format_emr_report_as_text(emr_report)
 
@@ -25,23 +27,27 @@ def generate_questions(emr_report: Dict[str, Any]) -> List[Dict[str, Any]]:
         "You are a clinical follow-up question generator and diagnostic assistant for post-visit after care. "
         "Output MUST be a valid JSON array only. "
         "Do not include markdown, code fences, commentary, or trailing text. "
-        "Do not invent diagnoses, labs, or medications not present in the EMR. "
+        "Do not invent diagnoses, labs, or medications not present in the inputs. "
         "Focus on actionable follow-up and patient safety."
     )
 
     user_prompt = f"""
     Task:
-    Generate follow-up aftercare cards/questions from the EMR.
+    Generate follow-up aftercare cards/questions using both EMR sources.
 
-    EMR:
+    Structured EMR Report:
     \"\"\"{emr_text}\"\"\"
+
+    Transcript-Derived EMR Notes:
+    \"\"\"{transcript_emr.strip()}\"\"\"
 
     Requirements:
     - Return as many cards as needed.
-    - Every card must be a yes/no question relevant to the EMR.
+    - Every card must be a yes/no question relevant to the patient context.
     - Prioritize high-risk and time-sensitive issues first.
     - Questions must be specific, plain language, and patient-facing.
     - Avoid duplicate or overlapping questions.
+    - Reconcile both sources; if details conflict, prefer safer follow-up questions.
 
     Output format:
     Return ONLY a JSON array of objects with exactly these keys:
@@ -55,7 +61,7 @@ def generate_questions(emr_report: Dict[str, Any]) -> List[Dict[str, Any]]:
     - Include at least 1 card in category "red_flag" when EMR suggests any potential complication.
     - Use clinically meaningful distinctions (e.g., worsening SOB vs mild stable SOB).
     - Keep each field concise and non-redundant.
-    - If EMR lacks detail, still generate conservative, general follow-up cards without fabricating facts.
+    - If inputs lack detail, still generate conservative, general follow-up cards without fabricating facts.
     """
 
     content = send_msg(

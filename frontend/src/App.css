@@ -35,6 +35,9 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
+  align-items: center;
+  align-content: center;
+  text-align: center;
   background: var(--bg-elevated);
   border-bottom: 2px solid var(--border);
   padding: 0.75rem 1.5rem;
@@ -48,11 +51,17 @@ body {
 }
 
 .navbar-inner {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   display: flex;
   gap: 2rem;
   align-items: center;
+}
+
+.program-title{
+  font-size: 40px;
+  font-weight:bold;
+  color: var(--text-secondary);
 }
 
 .nav-link--right {
@@ -328,7 +337,7 @@ body {
   margin: 0;
 }
 
-/* Client view: full-screen queue + insert message */
+/* Client view */
 .home-page--client {
   display: flex;
   flex-direction: column;
@@ -795,7 +804,7 @@ body {
   color: var(--escalate);
 }
 
-/* Actions – Match / Not a match */
+/* Match or Not a match */
 .card-actions {
   display: flex;
   gap: 1.25rem;

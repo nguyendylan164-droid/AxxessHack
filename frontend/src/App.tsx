@@ -16,6 +16,9 @@ function Layout() {
         <div className="navbar-inner">
           <img src="/Logo.png" alt="Axxess Logo" className="Logo" />
           <Link to="/" className="nav-link">Dashboard</Link>
+          <p className = "program-title">ReinCare AI</p>
+          <img src = "/Logo.png" alt="Axxess Logo" className="Logo"/>
+          <Link to="/" className="nav-link">Clinician</Link>
           <Link to="/recording" className="nav-link">Recording</Link>
           <Link to="/about" className="nav-link">About</Link>
           {!loading && (

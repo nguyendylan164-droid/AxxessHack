@@ -2,15 +2,15 @@ from typing import Any, Dict, Optional
 from src.services.supabase_client import get_supabase
 
 def _map_emr_row(row: Dict[str, Any]) -> Dict[str, Any]:
-    # Keep API response identical to your mock JSON keys
+    # Normalize EMR keys to API snake_case contract.
     return {
         "user_id": row.get("user_id"),
-        "lastVisit": row.get("last_visit"),
+        "last_visit": row.get("last_visit") or row.get("lastVisit"),
         "conditions": row.get("conditions") or [],
         "medications": row.get("medications") or [],
         "procedures": row.get("procedures") or [],
         "vitals": row.get("vitals") or {},
-        "visitNotes": row.get("visit_notes"),
+        "visit_notes": row.get("visit_notes") or row.get("visitNotes"),
         "alerts": row.get("alerts") or [],
     }
 
@@ -43,12 +43,12 @@ def format_emr_report_as_text(emr_report: Dict[str, Any]) -> str:
 
     sections = [
         f"User ID: {emr_report.get('user_id', 'Data Not Provided')}",
-        f"Last Visit: {emr_report.get('lastVisit', 'Data Not Provided')}",
+        f"Last Visit: {emr_report.get('last_visit') or emr_report.get('lastVisit') or 'Data Not Provided'}",
         f"Conditions: {', '.join(conditions) if conditions else 'Data Not Provided'}",
         f"Medications: {', '.join(medications) if medications else 'Data Not Provided'}",
         f"Procedures: {', '.join(procedures) if procedures else 'Data Not Provided'}",
-        f"Vitals: {vitals_text}",
-        f"Visit Notes: {emr_report.get('visitNotes') or 'Data Not Provided'}",
+        f"Vitals: {vitals}",
+        f"Visit Notes: {emr_report.get('visit_notes') or emr_report.get('visitNotes') or 'Data Not Provided'}",
         f"Alerts: {', '.join(alerts) if alerts else 'Data Not Provided'}",
     ]
     return "\n".join(sections)

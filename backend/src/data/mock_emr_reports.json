@@ -1,52 +1,52 @@
 [
   {
     "user_id": "user_001",
-    "lastVisit": "2025-02-10",
+    "last_visit": "2025-02-10",
     "conditions": ["Type 2 Diabetes", "Hypertension", "GERD"],
     "medications": ["Metformin 500mg twice daily", "Lisinopril 10mg daily", "Omeprazole 20mg as needed"],
     "procedures": [],
     "vitals": {"bp": "128/82", "weight": "72kg", "a1c": "6.8"},
-    "visitNotes": "Patient reports improved diet compliance. Blood sugar readings mostly in range. Advised to continue medication, monitor blood pressure at home, and schedule eye exam for diabetes screening. Follow up in 6 weeks.",
+    "visit_notes": "Patient reports improved diet compliance. Blood sugar readings mostly in range. Advised to continue medication, monitor blood pressure at home, and schedule eye exam for diabetes screening. Follow up in 6 weeks.",
     "alerts": ["A1C slightly elevated - reinforce diet adherence"]
   },
   {
     "user_id": "user_002",
-    "lastVisit": "2025-02-12",
+    "last_visit": "2025-02-12",
     "conditions": ["Post-knee replacement recovery", "Osteoarthritis", "Hyperlipidemia"],
     "medications": ["Warfarin 5mg daily", "Atorvastatin 20mg", "Acetaminophen 500mg as needed"],
     "procedures": ["Total knee replacement - 4 weeks ago"],
     "vitals": {"bp": "135/88", "weight": "89kg"},
-    "visitNotes": "Patient progressing well post-surgery. ROM improving. Still using cane for distance. No signs of DVT or infection. Warfarin levels therapeutic. Continue PT 3x/week. Watch for swelling, fever, or increased pain. Follow up in 2 weeks.",
+    "visit_notes": "Patient progressing well post-surgery. ROM improving. Still using cane for distance. No signs of DVT or infection. Warfarin levels therapeutic. Continue PT 3x/week. Watch for swelling, fever, or increased pain. Follow up in 2 weeks.",
     "alerts": ["Post-op anticoagulation - monitor for bleeding, bruising"]
   },
   {
     "user_id": "user_003",
-    "lastVisit": "2025-02-08",
+    "last_visit": "2025-02-08",
     "conditions": ["Asthma", "Seasonal allergies"],
     "medications": ["Albuterol inhaler PRN", "Fluticasone 250mcg daily", "Loratadine 10mg daily"],
     "procedures": [],
     "vitals": {"bp": "118/76", "respiratory": "clear"},
-    "visitNotes": "Asthma well controlled on current regimen. Patient reports occasional night cough. Allergy season approaching - continue daily controller. PEF values within personal best. Follow up in 3 months or sooner if symptoms worsen.",
+    "visit_notes": "Asthma well controlled on current regimen. Patient reports occasional night cough. Allergy season approaching - continue daily controller. PEF values within personal best. Follow up in 3 months or sooner if symptoms worsen.",
     "alerts": []
   },
   {
     "user_id": "user_004",
-    "lastVisit": "2025-02-14",
+    "last_visit": "2025-02-14",
     "conditions": ["Atrial fibrillation", "Hypertension", "CHF"],
     "medications": ["Apixaban 5mg twice daily", "Carvedilol 12.5mg twice daily", "Furosemide 20mg daily"],
     "procedures": ["Cardiac ablation - 8 weeks ago"],
     "vitals": {"bp": "122/78", "weight": "81kg", "hr": "72"},
-    "visitNotes": "AF well controlled post-ablation. Patient reports no palpitations. BP and weight stable. Advised to continue anticoagulation and diuretic, monitor fluid intake. Repeat echocardiogram in 6 months. Follow up in 4 weeks.",
+    "visit_notes": "AF well controlled post-ablation. Patient reports no palpitations. BP and weight stable. Advised to continue anticoagulation and diuretic, monitor fluid intake. Repeat echocardiogram in 6 months. Follow up in 4 weeks.",
     "alerts": ["Monitor for signs of fluid overload", "CHF - daily weights recommended"]
   },
   {
     "user_id": "user_005",
-    "lastVisit": "2025-02-09",
+    "last_visit": "2025-02-09",
     "conditions": ["Generalized anxiety disorder", "Insomnia"],
     "medications": ["Sertraline 50mg daily", "Trazodone 50mg at bedtime"],
     "procedures": [],
     "vitals": {"bp": "112/70", "weight": "58kg"},
-    "visitNotes": "Patient reports improvement in anxiety symptoms since starting sertraline. Sleep quality better with trazodone. PHQ-4 score down from 8 to 4. Continue current regimen. Discussed coping strategies. Follow up in 4 weeks.",
+    "visit_notes": "Patient reports improvement in anxiety symptoms since starting sertraline. Sleep quality better with trazodone. PHQ-4 score down from 8 to 4. Continue current regimen. Discussed coping strategies. Follow up in 4 weeks.",
     "alerts": []
   }
 ]

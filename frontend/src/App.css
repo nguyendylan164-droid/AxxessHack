@@ -51,6 +51,31 @@ body {
   margin-left: auto;
 }
 
+.nav-auth {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-user {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.nav-role {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-left: 0.25rem;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+}
+
 .nav-link {
   color: var(--text-secondary);
   text-decoration: none;
@@ -816,6 +841,21 @@ body {
 
 .auth-link:hover {
   text-decoration: underline;
+}
+
+.auth-error {
+  margin-bottom: 1rem;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.875rem;
+  color: #b91c1c;
+  background: var(--escalate-soft);
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+}
+
+.auth-select {
+  cursor: pointer;
+  appearance: auto;
 }
 
 /* Patient page */

@@ -5,17 +5,17 @@ import './App.css'
 
 function Layout() {
   return (
-    <>
+    <div className="layout">
       <nav className="navbar">
         <div className="navbar-inner">
           <Link to="/" className="nav-link">Clinician</Link>
           <Link to="/about" className="nav-link">About</Link>
         </div>
       </nav>
-      <main>
+      <main className="layout-main">
         <Outlet />
       </main>
-    </>
+    </div>
   )
 }
 

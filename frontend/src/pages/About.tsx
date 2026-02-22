@@ -27,8 +27,8 @@ export function About() {
             <a href="mailto:axxess@gmail.com" className="about-contact-item">
               Email: axxess@gmail.com
             </a>
-            <a href="tel:+14694129063" className="about-contact-item">
-              Phone Number: 469-412-9063
+            <a href="tel:+12145757711" className="about-contact-item">
+              Phone Number: (214) 575-7711
             </a>
             <p className="about-address">Headquarters: 16000 Dallas Parkway, Suite 700N Dallas, TX 75248</p>
           </div>

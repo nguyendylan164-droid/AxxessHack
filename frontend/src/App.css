@@ -47,6 +47,10 @@ body {
   align-items: center;
 }
 
+.nav-link--right {
+  margin-left: auto;
+}
+
 .nav-link {
   color: var(--text-secondary);
   text-decoration: none;
@@ -710,6 +714,108 @@ body {
   font-size: 0.9375rem;
   line-height: 1.55;
   color: var(--text-secondary);
+}
+
+/* Auth (Login / Sign up) */
+.auth-page {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: var(--bg-page);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 2rem 2rem 2.25rem;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+}
+
+.auth-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.auth-subtitle {
+  margin: 0 0 1.5rem;
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.auth-input {
+  padding: 0.65rem 0.85rem;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  transition: border-color 0.2s ease;
+}
+
+.auth-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.auth-submit {
+  margin-top: 0.5rem;
+  padding: 0.7rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.auth-submit:hover {
+  background: #1d4ed8;
+  transform: scale(1.01);
+}
+
+.auth-footer {
+  margin: 1.5rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+}
+
+.auth-link {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
 }
 
 /* Patient page */

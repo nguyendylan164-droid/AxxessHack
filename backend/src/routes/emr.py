@@ -17,3 +17,10 @@ def get_emr(user_id: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+def get_emr(user_id: str):
+   
+    emr = get_emr_by_user_id(user_id)
+    if not emr:
+        raise HTTPException(status_code=404, detail="EMR not found for user")
+    return emr

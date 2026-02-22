@@ -1,7 +1,6 @@
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react' 
 import { Routes, Route, Link, Outlet } from 'react-router-dom'
+import { SymptomCard } from './components/SymptomCard'
 import './App.css'
 
 export type TaskCategory = 'Follow-up' | 'Medication' | 'Screening' | 'Routine' | 'Escalation'
@@ -91,38 +90,6 @@ function Layout() {
       <main>
         <Outlet />
       </main>
-=======
-=======
->>>>>>> Stashed changes
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import { SymptomCard } from './components/SymptomCard'
-import './App.css'
-
-function App() {
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <SymptomCard
-          subject="Night cough"
-          description="Patient reports occasional night cough. Allergy season approaching - continue daily controller."
-          onYes={() => alert('Yes')}
-          onNo={() => alert('No')}
-        />
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
->>>>>>> Stashed changes
     </>
   )
 }
@@ -224,10 +191,12 @@ function Home() {
                           className={`stack-card ${isTop ? 'stack-card--top' : 'stack-card--back'} ${isExiting ? `stack-card--exit-${exitDir}` : ''}`}
                           style={isExiting ? { transitionDuration: `${EXIT_DURATION_MS}ms` } : undefined}
                         >
-                          <div className="stack-card-inner">
-                            <h3 className="stack-card-name">{card.name}</h3>
-                            <p className="stack-card-tagline">{card.tagline}</p>
-                          </div>
+                          <SymptomCard
+                            subject={card.name}
+                            description={card.tagline}
+                            onYes={isTop ? () => handleChoice('right') : undefined}
+                            onNo={isTop ? () => handleChoice('left') : undefined}
+                          />
                         </div>
                       )
                     })}
@@ -239,28 +208,7 @@ function Home() {
                         Reload sample
                       </button>
                     </div>
-                  ) : (
-                    <div className="card-actions">
-                      <button
-                        type="button"
-                        className="card-btn card-btn--nope"
-                        onClick={() => handleChoice('left')}
-                        disabled={!!exiting}
-                        aria-label="Escalate"
-                      >
-                        <span className="card-btn-label">Escalate</span>
-                      </button>
-                      <button
-                        type="button"
-                        className="card-btn card-btn--match"
-                        onClick={() => handleChoice('right')}
-                        disabled={!!exiting}
-                        aria-label="No action needed"
-                      >
-                        <span className="card-btn-label">No action</span>
-                      </button>
-                    </div>
-                  )}
+                  ) : null}
                 </div>
               </div>
 

@@ -31,3 +31,24 @@ def get_emr_by_user_id(user_id: str) -> Optional[Dict[str, Any]]:
         return None
 
     return _map_emr_row(res.data)
+
+def format_emr_report_as_text(emr_report: Dict[str, Any]) -> str:
+    conditions = emr_report.get("conditions") or []
+    medications = emr_report.get("medications") or []
+    procedures = emr_report.get("procedures") or []
+    vitals = emr_report.get("vitals") or {}
+    alerts = emr_report.get("alerts") or []
+
+    vitals_text = ", ".join(f"{k}: {v}" for k, v in vitals.items()) if vitals else "Data Not Provided"
+
+    sections = [
+        f"User ID: {emr_report.get('user_id', 'Data Not Provided')}",
+        f"Last Visit: {emr_report.get('lastVisit', 'Data Not Provided')}",
+        f"Conditions: {', '.join(conditions) if conditions else 'Data Not Provided'}",
+        f"Medications: {', '.join(medications) if medications else 'Data Not Provided'}",
+        f"Procedures: {', '.join(procedures) if procedures else 'Data Not Provided'}",
+        f"Vitals: {vitals_text}",
+        f"Visit Notes: {emr_report.get('visitNotes') or 'Data Not Provided'}",
+        f"Alerts: {', '.join(alerts) if alerts else 'Data Not Provided'}",
+    ]
+    return "\n".join(sections)

@@ -2,6 +2,7 @@ import json
 from typing import Any, Dict, List
 
 from .ai_service import send_msg
+from .emr_repo import format_emr_report_as_text
 
 def _strip_code_fences(text: str) -> str:
     text = text.strip()
@@ -14,9 +15,11 @@ def _strip_code_fences(text: str) -> str:
         text = "\n".join(lines).strip()
     return text
 
-def generate_questions(emr_text: str) -> List[Dict[str, Any]]:
-    if not emr_text or not emr_text.strip():
-        raise ValueError("emr_text is required")
+def generate_questions(emr_report: Dict[str, Any]) -> List[Dict[str, Any]]:
+    if not emr_report:
+        raise ValueError("emr_report is required")
+
+    emr_text = format_emr_report_as_text(emr_report)
 
     system_prompt = (
         "You are a clinical follow-up question generator and diagnostic assistant for post-visit after care. "

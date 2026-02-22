@@ -1,6 +1,6 @@
 [
   {
-    "userId": "user_001",
+    "user_id": "user_001",
     "lastVisit": "2025-02-10",
     "conditions": ["Type 2 Diabetes", "Hypertension", "GERD"],
     "medications": ["Metformin 500mg twice daily", "Lisinopril 10mg daily", "Omeprazole 20mg as needed"],
@@ -10,7 +10,7 @@
     "alerts": ["A1C slightly elevated - reinforce diet adherence"]
   },
   {
-    "userId": "user_002",
+    "user_id": "user_002",
     "lastVisit": "2025-02-12",
     "conditions": ["Post-knee replacement recovery", "Osteoarthritis", "Hyperlipidemia"],
     "medications": ["Warfarin 5mg daily", "Atorvastatin 20mg", "Acetaminophen 500mg as needed"],
@@ -20,7 +20,7 @@
     "alerts": ["Post-op anticoagulation - monitor for bleeding, bruising"]
   },
   {
-    "userId": "user_003",
+    "user_id": "user_003",
     "lastVisit": "2025-02-08",
     "conditions": ["Asthma", "Seasonal allergies"],
     "medications": ["Albuterol inhaler PRN", "Fluticasone 250mcg daily", "Loratadine 10mg daily"],

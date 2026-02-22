@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-DATA_DIR = Path(__file__).resolve().parent.parent.parent / 'data'
+DATA_DIR = Path(__file__).resolve().parent.parent / 'data'
 USERS_PATH = DATA_DIR / 'mock_users.json'
 EMR_REPORTS_PATH = DATA_DIR / 'mock_emr_reports.json'
 
@@ -20,7 +20,7 @@ def get_emr_by_user_id(user_id: str) -> dict|None:
     """ get EMR report for user by user id """
     emr_reports = load_json(EMR_REPORTS_PATH)
     for report in emr_reports:
-        if report['user_id'] == user_id:
+        if report.get('user_id') == user_id:
             return report
     return None
 
@@ -30,4 +30,12 @@ def get_user_by_id(user_id: str) -> dict|None:
     for user in users:
         if user['id'] == user_id:
             return user
+    return None
+
+def get_report_by_user_id(user_id: str) -> dict|None:
+    """ get report by user id """
+    reports = load_json(EMR_REPORTS_PATH)
+    for report in reports:
+        if report.get('user_id') == user_id:
+            return report
     return None

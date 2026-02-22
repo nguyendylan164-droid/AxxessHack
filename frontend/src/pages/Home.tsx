@@ -334,8 +334,8 @@ export function Home() {
   return (
     <div className="home-page home-page--unified">
       <section className="dashboard dashboard--unified">
-        {/* Client section: review queue + check-in (everyone sees this) */}
-        <div className="unified-client-section">
+        {/* Left card: for clients. Clinicians can see it but interactions have no effect. */}
+        <div className={`unified-client-section ${!isClient ? 'unified-client-section--no-interact' : ''}`} aria-disabled={!isClient}>
           <h2 className="unified-section-title">
             {isClient ? 'Your check-in' : 'Review queue'}
           </h2>
@@ -346,6 +346,7 @@ export function Home() {
               onDisagree={onDisagree}
               onReset={onReset}
               fullScreen={false}
+              disabled={!isClient}
             />
           </div>
           <div className="client-insert-message">
@@ -359,7 +360,7 @@ export function Home() {
               value={clientExtraConcerns}
               onChange={(e) => setClientExtraConcerns(e.target.value)}
               rows={3}
-              disabled={checkInSubmitStatus === 'submitting'}
+              disabled={!isClient || checkInSubmitStatus === 'submitting'}
             />
             {checkInError && (
               <p className="client-checkin-error" role="alert">
@@ -373,15 +374,15 @@ export function Home() {
               type="button"
               className="auth-submit client-submit-btn"
               onClick={submitCheckIn}
-              disabled={checkInSubmitStatus === 'submitting' || (reviewHistory.length === 0 && !clientExtraConcerns.trim())}
+              disabled={!isClient || checkInSubmitStatus === 'submitting' || (reviewHistory.length === 0 && !clientExtraConcerns.trim())}
             >
               {checkInSubmitStatus === 'submitting' ? 'Submitting…' : 'Submit check-in'}
             </button>
           </div>
         </div>
 
-        {/* Clinician section: Progress summary, Tasks, Escalations (everyone sees this; data is for selected/current user) */}
-        <div className="unified-dashboard-section">
+        {/* Right card: for clinicians. Clients can see it but interactions have no effect. */}
+        <div className={`unified-dashboard-section ${isClient ? 'unified-dashboard-section--no-interact' : ''}`} aria-disabled={isClient}>
           <h2 className="unified-section-title">Progress & tasks</h2>
           {clinicianState.loading && (
             <p className="clinician-loading">Loading client data…</p>

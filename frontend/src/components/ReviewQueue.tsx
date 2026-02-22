@@ -34,7 +34,7 @@ export function ReviewQueue({ items, onAgree, onDisagree, onReset, fullScreen, d
       {items.length === 0 ? (
         <div className="card-empty">
           <p className="card-empty-text">Queue clear</p>
-          <button type="button" className="btn-reset" onClick={onReset}>
+          <button type="button" className="btn-reset" onClick={onReset} disabled={disabled}>
             Reload sample
           </button>
         </div>

@@ -1,4 +1,5 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { Routes, Route, Link, Outlet } from 'react-router-dom'
 import './App.css'
@@ -91,6 +92,8 @@ function Layout() {
         <Outlet />
       </main>
 =======
+=======
+>>>>>>> Stashed changes
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import { SymptomCard } from './components/SymptomCard'

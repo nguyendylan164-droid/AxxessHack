@@ -42,3 +42,15 @@ export const AI_AUTOMATION = [
   'Progression spikes flagged (1 high, 1 low)',
   'Symptoms trended and compared to baseline',
 ]
+
+export interface PatientOption {
+  id: string
+  name: string
+  lastVisit: string
+}
+
+export const MOCK_PATIENTS: PatientOption[] = [
+  { id: '1', name: 'Maria J.', lastVisit: '12 days ago' },
+  { id: '2', name: 'James K.', lastVisit: '5 days ago' },
+  { id: '3', name: 'Linda M.', lastVisit: '19 days ago' },
+]

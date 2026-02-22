@@ -1,20 +1,40 @@
 import { Routes, Route, Link, Outlet } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext'
+import { usePatientSelection } from './contexts/PatientSelectionContext'
 import { Home } from './pages/Home'
 import { About } from './pages/About'
 import { Login } from './pages/Login'
 import { SignUp } from './pages/SignUp'
+import { MOCK_PATIENTS } from './data/mockData'
 import './App.css'
 
 function Layout() {
   const { session, profile, signOut, loading } = useAuth()
+  const { selectedPatientId, setSelectedPatientId } = usePatientSelection()
+  const isClinician = profile?.role === 'clinician'
 
   return (
     <div className="layout">
       <nav className="navbar">
         <div className="navbar-inner">
-          <Link to="/" className="nav-link">Clinician</Link>
+          <Link to="/" className="nav-link">Home</Link>
           <Link to="/about" className="nav-link">About</Link>
+          {!loading && session && isClinician && (
+            <div className="nav-patient-wrap">
+              <select
+                className="nav-patient-select"
+                value={selectedPatientId}
+                onChange={(e) => setSelectedPatientId(e.target.value)}
+                aria-label="Select patient"
+              >
+                {MOCK_PATIENTS.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} · Last visit {p.lastVisit}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           {!loading && (
             session
               ? (

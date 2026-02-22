@@ -106,6 +106,96 @@ body {
   flex: 1;
 }
 
+.nav-patient-wrap {
+  margin-left: auto;
+  margin-right: 0.5rem;
+}
+
+.nav-patient-select {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--bg-page);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+  min-width: 200px;
+}
+
+/* Welcome (logged out) */
+.welcome-page {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: var(--bg-page);
+}
+
+.welcome-block {
+  text-align: center;
+  max-width: 400px;
+}
+
+.welcome-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.welcome-text {
+  margin: 0 0 1.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.welcome-btn {
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.welcome-btn:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.welcome-auth-prompt {
+  margin: 1.75rem 0 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.welcome-auth-links {
+  font-size: 0.875rem;
+}
+
+.welcome-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.welcome-link:hover {
+  text-decoration: underline;
+}
+
+.welcome-sep {
+  margin: 0 0.5rem;
+  color: var(--text-secondary);
+}
+
 /* Dashboard */
 .home-page {
   min-height: 100vh;
@@ -179,6 +269,101 @@ body {
 .patient-meta {
   font-size: 0.875rem;
   color: var(--text-secondary);
+}
+
+.patient-context--dropdown {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.patient-select {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  min-width: 220px;
+}
+
+.dashboard-header--clinician {
+  justify-content: flex-end;
+}
+
+.dashboard-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .dashboard-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboard-col--summary .summary-card,
+.dashboard-col--tasks .tasks-panel,
+.dashboard-col--escalations .escalations-panel {
+  margin: 0;
+}
+
+/* Client view: full-screen queue + insert message */
+.home-page--client {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard--client {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: none;
+  padding: 1.5rem;
+}
+
+.client-review-full {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 55vh;
+  width: 100%;
+}
+
+.client-insert-message {
+  margin-top: 1.5rem;
+  width: 100%;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.client-concerns-input {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  resize: vertical;
+  min-height: 80px;
+}
+
+.client-concerns-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.client-concerns-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
 .dashboard-grid {
@@ -266,6 +451,20 @@ body {
   border-left: 4px solid var(--match);
 }
 
+.review-section--full {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 2rem;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
 .section-title {
   margin: 0 0 0.25rem;
   font-size: 1rem;
@@ -292,6 +491,17 @@ body {
   width: 300px;
   height: 280px;
   flex-shrink: 0;
+}
+
+.card-stack-wrap--full {
+  width: 100%;
+  min-height: 50vh;
+  justify-content: center;
+}
+
+.card-stack--full {
+  width: min(420px, 90vw);
+  height: min(380px, 70vh);
 }
 
 .stack-card {

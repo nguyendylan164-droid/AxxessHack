@@ -6,9 +6,11 @@ export interface ReviewQueueProps {
   onEscalate: (item: SwipeStackCard) => void
   onNoAction: (item: SwipeStackCard) => void
   onReset: () => void
+  /** When true, section and cards use full-screen layout (client view) */
+  fullScreen?: boolean
 }
 
-export function ReviewQueue({ items, onEscalate, onNoAction, onReset }: ReviewQueueProps) {
+export function ReviewQueue({ items, onEscalate, onNoAction, onReset, fullScreen }: ReviewQueueProps) {
   const handleChoice = (direction: 'left' | 'right') => {
     if (items.length === 0) return
     const top = items[0]
@@ -20,9 +22,13 @@ export function ReviewQueue({ items, onEscalate, onNoAction, onReset }: ReviewQu
   }
 
   return (
-    <div className="review-section">
-      <h2 className="section-title">Review queue</h2>
-      <p className="section-desc">Confirm on track or escalate for follow-up.</p>
+    <div className={`review-section ${fullScreen ? 'review-section--full' : ''}`}>
+      {!fullScreen && (
+        <>
+          <h2 className="section-title">Review queue</h2>
+          <p className="section-desc">Confirm on track or escalate for follow-up.</p>
+        </>
+      )}
       {items.length === 0 ? (
         <div className="card-empty">
           <p className="card-empty-text">Queue clear</p>
@@ -31,10 +37,7 @@ export function ReviewQueue({ items, onEscalate, onNoAction, onReset }: ReviewQu
           </button>
         </div>
       ) : (
-        <SwipeStack
-          cards={items}
-          onChoice={handleChoice}
-        />
+        <SwipeStack cards={items} onChoice={handleChoice} fullScreen={fullScreen} />
       )}
     </div>
   )

@@ -1,6 +1,5 @@
-import { useState, useCallback, useMemo, useEffect } from 'react' 
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { Routes, Route, Link, Outlet } from 'react-router-dom'
-import { SymptomCard } from './components/SymptomCard'
 import './App.css'
 
 export type TaskCategory = 'Follow-up' | 'Medication' | 'Screening' | 'Routine' | 'Escalation'
@@ -191,12 +190,10 @@ function Home() {
                           className={`stack-card ${isTop ? 'stack-card--top' : 'stack-card--back'} ${isExiting ? `stack-card--exit-${exitDir}` : ''}`}
                           style={isExiting ? { transitionDuration: `${EXIT_DURATION_MS}ms` } : undefined}
                         >
-                          <SymptomCard
-                            subject={card.name}
-                            description={card.tagline}
-                            onYes={isTop ? () => handleChoice('right') : undefined}
-                            onNo={isTop ? () => handleChoice('left') : undefined}
-                          />
+                          <div className="stack-card-inner">
+                            <h3 className="stack-card-name">{card.name}</h3>
+                            <p className="stack-card-tagline">{card.tagline}</p>
+                          </div>
                         </div>
                       )
                     })}
@@ -208,7 +205,28 @@ function Home() {
                         Reload sample
                       </button>
                     </div>
-                  ) : null}
+                  ) : (
+                    <div className="card-actions">
+                      <button
+                        type="button"
+                        className="card-btn card-btn--nope"
+                        onClick={() => handleChoice('left')}
+                        disabled={!!exiting}
+                        aria-label="Escalate"
+                      >
+                        <span className="card-btn-label">Escalate</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="card-btn card-btn--match"
+                        onClick={() => handleChoice('right')}
+                        disabled={!!exiting}
+                        aria-label="No action needed"
+                      >
+                        <span className="card-btn-label">No action</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 

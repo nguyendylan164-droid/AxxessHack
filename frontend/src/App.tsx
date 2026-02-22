@@ -1,8 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { Routes, Route, Link, Outlet } from 'react-router-dom'
+import { Routes, Route, Link, Outlet, Navigate } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext'
-import { usePatientSelection } from './contexts/PatientSelectionContext'
-import { getClients, type ClientOption } from './data/api'
 import { Home } from './pages/Home'
 import { Recording } from './pages/Recording'
 import { About } from './pages/About'
@@ -12,72 +9,15 @@ import './App.css'
 
 function Layout() {
   const { session, profile, signOut, loading } = useAuth()
-  const { selectedPatientId, setSelectedPatientId } = usePatientSelection()
-  const isClinician = profile?.role === 'clinician'
-  const [clients, setClients] = useState<ClientOption[]>([])
-  const [clientsLoading, setClientsLoading] = useState(false)
-  const [clientsError, setClientsError] = useState<string | null>(null)
-  const selectedPatientIdRef = useRef(selectedPatientId)
-  selectedPatientIdRef.current = selectedPatientId
-
-  useEffect(() => {
-    if (!session || !isClinician) {
-      setClients([])
-      setClientsError(null)
-      return
-    }
-    setClientsLoading(true)
-    setClientsError(null)
-    getClients()
-      .then((list) => {
-        setClients(list)
-        setClientsError(null)
-        const current = selectedPatientIdRef.current
-        if (list.length > 0 && !list.some((c) => c.id === current)) {
-          setSelectedPatientId(list[0].id)
-        }
-      })
-      .catch((err) => {
-        setClients([])
-        setClientsError(err instanceof Error ? err.message : 'Could not load clients')
-      })
-      .finally(() => setClientsLoading(false))
-  }, [session, isClinician, setSelectedPatientId])
 
   return (
     <div className="layout">
-      
       <nav className="navbar">
         <div className="navbar-inner">
-          <img src = "/Logo.png" alt="Axxess Logo" className="Logo"/>
-          <Link to="/" className="nav-link">Clinician</Link>
+          <img src="/Logo.png" alt="Axxess Logo" className="Logo" />
+          <Link to="/" className="nav-link">Dashboard</Link>
           <Link to="/recording" className="nav-link">Recording</Link>
           <Link to="/about" className="nav-link">About</Link>
-          {!loading && session && isClinician && (
-            <div className="nav-patient-wrap">
-              <select
-                className="nav-patient-select"
-                value={clients.some((c) => c.id === selectedPatientId) ? selectedPatientId : (clients[0]?.id ?? '')}
-                onChange={(e) => setSelectedPatientId(e.target.value)}
-                aria-label="Select patient"
-                disabled={clientsLoading}
-              >
-                {clientsLoading && (
-                  <option value="">Loading clients…</option>
-                )}
-                {!clientsLoading && clients.length === 0 && (
-                  <option value="">
-                    {clientsError ? `Error: ${clientsError.slice(0, 40)}…` : 'No clients'}
-                  </option>
-                )}
-                {clients.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name} · Last visit {c.lastVisit}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
           {!loading && (
             session
               ? (
@@ -85,7 +25,7 @@ function Layout() {
                   <span className="nav-user">
                     {profile?.name ?? session.user?.email}
                     {profile && (
-                      <span className="nav-role">({profile.role})</span>
+                      <span className="nav-role">(nurse)</span>
                     )}
                   </span>
                   <button
@@ -98,9 +38,10 @@ function Layout() {
                 </div>
                 )
               : (
-                <Link to="/login" className="nav-link nav-link--right">
-                  Log in
-                </Link>
+                <div className="nav-auth-links">
+                  <Link to="/login" className="nav-link nav-link--right">Log in</Link>
+                  <Link to="/signup" className="nav-link nav-link--right">Sign up</Link>
+                </div>
                 )
           )}
         </div>
@@ -112,12 +53,33 @@ function Layout() {
   )
 }
 
+/** Protect nurse-only routes: redirect non-nurses to login */
+function NurseRoute({ children }: { children: React.ReactNode }) {
+  const { session, profile, loading } = useAuth()
+  if (loading) return <div className="welcome-page"><div className="welcome-block"><p className="welcome-text">Loading…</p></div></div>
+  if (!session) return <Navigate to="/login" replace />
+  if (profile && profile.role !== 'clinician') {
+    return (
+      <div className="welcome-page">
+        <div className="welcome-block">
+          <h1 className="welcome-title">Nurses Only</h1>
+          <p className="welcome-text">
+            This app is for nurses only. Please log in with a nurse account.
+          </p>
+          <Link to="/login" className="welcome-btn">Go to login</Link>
+        </div>
+      </div>
+    )
+  }
+  return <>{children}</>
+}
+
 function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/recording" element={<Recording />} />
+        <Route path="/" element={<NurseRoute><Home /></NurseRoute>} />
+        <Route path="/recording" element={<NurseRoute><Recording /></NurseRoute>} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />

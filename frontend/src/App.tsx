@@ -49,6 +49,7 @@ function Layout() {
       
       <nav className="navbar">
         <div className="navbar-inner">
+          <p className = "program-title">ReinCare AI</p>
           <img src = "/Logo.png" alt="Axxess Logo" className="Logo"/>
           <Link to="/" className="nav-link">Clinician</Link>
           <Link to="/recording" className="nav-link">Recording</Link>

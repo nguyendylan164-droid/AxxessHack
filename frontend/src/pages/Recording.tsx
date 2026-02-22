@@ -24,7 +24,7 @@ function mergeBuffers(lhs: Int16Array, rhs: Int16Array): Int16Array {
   const merged = new Int16Array(lhs.length + rhs.length)
   merged.set(lhs, 0)
   merged.set(rhs, lhs.length)
-  return merged
+  return merged as Int16Array
 }
 
 export function Recording() {
@@ -80,17 +80,18 @@ export function Recording() {
     source.connect(workletNode)
     workletNode.connect(audioContext.destination)
 
-    let audioBufferQueue = new Int16Array(0)
+    let audioBufferQueue: Int16Array = new Int16Array(0)
 
     workletNode.port.onmessage = (event: MessageEvent) => {
-      const currentBuffer = new Int16Array(event.data.audio_data)
-      audioBufferQueue = mergeBuffers(audioBufferQueue, currentBuffer)
+      const raw = event.data.audio_data as ArrayBuffer
+      const currentBuffer = new Int16Array(raw)
+      audioBufferQueue = mergeBuffers(audioBufferQueue, currentBuffer) as Int16Array
       const bufferDuration = (audioBufferQueue.length / audioContext.sampleRate) * 1000
 
       if (bufferDuration >= 100) {
         const totalSamples = Math.floor(audioContext.sampleRate * 0.1)
         const finalBuffer = new Uint8Array(audioBufferQueue.subarray(0, totalSamples).buffer)
-        audioBufferQueue = audioBufferQueue.subarray(totalSamples)
+        audioBufferQueue = audioBufferQueue.subarray(totalSamples) as Int16Array
         if (wsRef.current?.readyState === WebSocket.OPEN) {
           wsRef.current.send(finalBuffer)
         }

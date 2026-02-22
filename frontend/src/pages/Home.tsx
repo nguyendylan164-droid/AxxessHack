@@ -10,9 +10,7 @@ import type { SwipeStackCard } from '../components/SwipeStack'
 import type { EscalationItem } from '../types/tasks'
 import {
   buildTasksFromEscalationsOnly,
-  loadCompletedTaskIds,
   loadCompletedTaskIdsForClient,
-  saveCompletedTaskIds,
   saveCompletedTaskIdsForClient,
 } from '../types/tasks'
 import { getEmr, getAICards, type AICard } from '../data/api'
@@ -98,7 +96,6 @@ export function Home() {
 
   const [reviewItems, setReviewItems] = useState<SwipeStackCard[]>(() => [...SAMPLE_REVIEW_ITEMS])
   const [agreedItems, setAgreedItems] = useState<EscalationItem[]>([])
-  const [completedTaskIds, setCompletedTaskIds] = useState<Set<string>>(loadCompletedTaskIds)
   const [clientExtraConcerns, setClientExtraConcerns] = useState('')
   const [reviewHistory, setReviewHistory] = useState<ReviewChoice[]>([])
   const [checkInSubmitStatus, setCheckInSubmitStatus] = useState<'idle' | 'submitting' | 'done' | 'error'>('idle')
@@ -112,10 +109,6 @@ export function Home() {
     loading: false,
     completedTaskIds: new Set<string>(),
   })
-
-  useEffect(() => {
-    saveCompletedTaskIds(completedTaskIds)
-  }, [completedTaskIds])
 
   // Load selected client's check-ins and EMR (dashboard). All updates in async callback to avoid sync setState in effect.
   useEffect(() => {
@@ -221,15 +214,6 @@ export function Home() {
       if (next.has(id)) next.delete(id)
       else next.add(id)
       return { ...prev, completedTaskIds: next }
-    })
-  }, [])
-
-  const toggleTaskCompleted = useCallback((id: string) => {
-    setCompletedTaskIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
     })
   }, [])
 

@@ -75,7 +75,32 @@ export async function getEscalations(): Promise<import('../types/tasks').Escalat
 }
 
 export async function getAISummary(): Promise<{ summary: string; automation: string[] }> {
-  // TODO: from backend
   const { AI_SUMMARY, AI_AUTOMATION } = await import('../data/mockData')
   return { summary: AI_SUMMARY, automation: AI_AUTOMATION }
+}
+
+export interface AgreedItemInput {
+  title: string
+  detail: string
+  severity?: string
+}
+
+export async function getProgressSummary(
+  emrText: string | null,
+  agreedItems: AgreedItemInput[]
+): Promise<string> {
+  const res = await fetch(`${API_BASE}/api/summary/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      emr_text: emrText || undefined,
+      agreed_items: agreedItems.length ? agreedItems : undefined,
+    }),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error((err as { detail?: string }).detail ?? 'Failed to generate progress summary')
+  }
+  const data = (await res.json()) as { summary: string }
+  return data.summary
 }

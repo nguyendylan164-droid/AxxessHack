@@ -10,7 +10,7 @@ function Layout() {
   const { session, profile, signOut, loading } = useAuth()
 
   return (
-    <>
+    <div className="layout">
       <nav className="navbar">
         <div className="navbar-inner">
           <Link to="/" className="nav-link">Clinician</Link>
@@ -42,10 +42,10 @@ function Layout() {
           )}
         </div>
       </nav>
-      <main>
+      <main className="layout-main">
         <Outlet />
       </main>
-    </>
+    </div>
   )
 }
 

@@ -96,6 +96,16 @@ body {
   outline-offset: 2px;
 }
 
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.layout-main {
+  flex: 1;
+}
+
 /* Dashboard */
 .home-page {
   min-height: 100vh;
@@ -700,45 +710,175 @@ body {
   background: var(--accent-soft);
 }
 
-/* About page */
+/* About page - full-page two-column layout */
 .about-page {
-  max-width: 640px;
-  margin: 0 auto;
-  min-height: 60vh;
-  padding: 2rem 1.5rem;
-  background: var(--bg-page);
+  min-height: 100%;
+  padding: 3rem 2rem 2rem;
+  background: linear-gradient(135deg, #e8eef5 0%, #d4dce8 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
-.about-page h1 {
-  font-size: 1.5rem;
+.about-container {
+  display: flex;
+  max-width: 10000px;
+  width: 100%;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08), 0 2px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+
+  opacity: 0;
+  animation: fadeIn 1.5s ease forwards;
+}
+
+.about-left {
+  flex: 0 0 45%;
+  min-height: 520px;
+}
+
+.about-image {
+  width: 110%;
+  height: 90%;
+  object-fit:fill;
+  object-position: center;
+  display: block;
+
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+.about-right {
+  flex: 1;
+  padding: 3rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.about-pretitle {
+  font-size: 0.7rem;
   font-weight: 600;
+  letter-spacing: 0.12em;
+  text-align: center;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.about-title {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
   color: var(--text-primary);
-  margin-bottom: 1rem;
+  margin: 0 0 1.25rem;
+  line-height: 1.2;
+}
+
+.about-title-accent {
+  color: var(--accent);
+  font-weight: 800;
 }
 
 .about-lead {
   font-size: 1rem;
-  line-height: 1.6;
-  color: var(--text-primary);
-  margin-bottom: 1.25rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  text-align: center;
+  margin: 0 0 1.25rem;
 }
 
 .about-features {
-  margin: 0 0 1.25rem;
+  margin: 0 0 2rem;
   padding-left: 1.25rem;
   font-size: 0.9375rem;
+  
   color: var(--text-secondary);
-  line-height: 1.65;
+  line-height: 1.8;
 }
 
 .about-features li {
   margin-bottom: 0.5rem;
 }
 
-.about-close {
-  font-size: 0.9375rem;
-  line-height: 1.55;
+.about-features li:last-child {
+  margin-bottom: 0;
+}
+
+.about-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.about-contact-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.about-contact-item {
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  text-align: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  transition: color 0.2s ease;
+}
+
+.about-address{
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  text-align: center;
+  padding: 0.5rem 0.5;
+}
+
+.about-contact-item:hover {
+  color: var(--accent);
+}
+
+.about-attribution {
+  margin: 1.5rem 0 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.about-attribution a {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.about-attribution a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .about-container {
+    flex-direction: column;
+  }
+
+  .about-left {
+    flex: none;
+    min-height: 320px;
+  }
+
+  .about-right {
+    padding: 2rem 1.5rem;
+  }
+
+  .about-title {
+    font-size: 1.625rem;
+  }
 }
 
 /* Auth (Login / Sign up) */

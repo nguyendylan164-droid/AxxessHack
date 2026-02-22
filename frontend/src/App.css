@@ -366,6 +366,22 @@ body {
   box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
+.client-checkin-error {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+  color: var(--escalate);
+}
+
+.client-checkin-success {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+  color: var(--match);
+}
+
+.client-submit-btn {
+  margin-top: 1rem;
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr 280px;

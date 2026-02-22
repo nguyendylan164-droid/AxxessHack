@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { usePatientSelection } from '../contexts/PatientSelectionContext'
 import { ReviewQueue } from '../components/ReviewQueue'
@@ -21,6 +22,42 @@ import {
 
 const APP_NAME = 'CareTrack'
 
+type ConcernLevel = 'low' | 'medium' | 'high'
+
+interface ReviewChoice {
+  id: string
+  name: string
+  tagline: string
+  severity?: 'mild' | 'moderate' | 'severe'
+  action: 'escalate' | 'no_action'
+}
+
+function computeConcernAndFlags(
+  history: ReviewChoice[],
+  extraConcerns: string
+): { concernLevel: ConcernLevel; redFlags: string[] } {
+  const escalated = history.filter((h) => h.action === 'escalate')
+  const combined = extraConcerns.toLowerCase()
+  const redFlags: string[] = []
+  escalated.forEach((h) => redFlags.push(`Escalated: ${h.name}`))
+  const highKw = ['worse', 'severe', 'emergency', 'chest pain', 'can\'t breathe', '10/10']
+  const medKw = ['worsening', 'moderate', 'concerning', 'worried', 'pain']
+  if (highKw.some((kw) => combined.includes(kw))) {
+    redFlags.push('High-concern wording in notes')
+    return { concernLevel: 'high', redFlags }
+  }
+  if (escalated.some((h) => h.severity === 'severe')) {
+    return { concernLevel: 'high', redFlags }
+  }
+  if (escalated.some((h) => h.severity === 'moderate')) {
+    return { concernLevel: 'medium', redFlags }
+  }
+  if (medKw.some((kw) => combined.includes(kw)) || escalated.length > 0) {
+    return { concernLevel: 'medium', redFlags }
+  }
+  return { concernLevel: 'low', redFlags }
+}
+
 function escalationSeverityFromCard(severity: 'mild' | 'moderate' | 'severe' | undefined): 'low' | 'medium' | 'high' {
   if (severity === 'severe') return 'high'
   if (severity === 'moderate') return 'medium'
@@ -36,6 +73,9 @@ export function Home() {
   const [escalations, setEscalations] = useState<EscalationItem[]>(() => [...INITIAL_ESCALATIONS])
   const [completedTaskIds, setCompletedTaskIds] = useState<Set<string>>(loadCompletedTaskIds)
   const [clientExtraConcerns, setClientExtraConcerns] = useState('')
+  const [reviewHistory, setReviewHistory] = useState<ReviewChoice[]>([])
+  const [checkInSubmitStatus, setCheckInSubmitStatus] = useState<'idle' | 'submitting' | 'done' | 'error'>('idle')
+  const [checkInError, setCheckInError] = useState<string | null>(null)
 
   useEffect(() => {
     saveCompletedTaskIds(completedTaskIds)
@@ -53,6 +93,10 @@ export function Home() {
   }, [])
 
   const onEscalate = useCallback((item: SwipeStackCard) => {
+    setReviewHistory((prev) => [
+      ...prev,
+      { id: item.id, name: item.name, tagline: item.tagline, severity: item.severity, action: 'escalate' },
+    ])
     const severity = escalationSeverityFromCard(item.severity)
     setEscalations((prev) => [
       ...prev,
@@ -67,13 +111,43 @@ export function Home() {
   }, [])
 
   const onNoAction = useCallback((item: SwipeStackCard) => {
+    setReviewHistory((prev) => [
+      ...prev,
+      { id: item.id, name: item.name, tagline: item.tagline, severity: item.severity, action: 'no_action' },
+    ])
     setReviewItems((prev) => prev.filter((c) => c.id !== item.id))
   }, [])
 
   const onReset = useCallback(() => {
     setReviewItems([...SAMPLE_REVIEW_ITEMS])
     setEscalations([...INITIAL_ESCALATIONS])
+    setReviewHistory([])
   }, [])
+
+  const submitCheckIn = useCallback(async () => {
+    if (!session?.user?.id) return
+    setCheckInError(null)
+    setCheckInSubmitStatus('submitting')
+    const { concernLevel, redFlags } = computeConcernAndFlags(reviewHistory, clientExtraConcerns)
+    const responses = {
+      reviewed: reviewHistory,
+      extra_concerns: clientExtraConcerns.trim() || null,
+    }
+    const { error } = await supabase.from('aftercare_check_ins').insert({
+      user_id: session.user.id,
+      responses,
+      concern_level: concernLevel,
+      red_flags: redFlags,
+    })
+    if (error) {
+      setCheckInError(error.message)
+      setCheckInSubmitStatus('error')
+      return
+    }
+    setCheckInSubmitStatus('done')
+    setReviewHistory([])
+    setClientExtraConcerns('')
+  }, [session?.user?.id, reviewHistory, clientExtraConcerns])
 
   // —— Not signed in: welcome / landing ———
   if (!session) {
@@ -136,7 +210,24 @@ export function Home() {
               value={clientExtraConcerns}
               onChange={(e) => setClientExtraConcerns(e.target.value)}
               rows={3}
+              disabled={checkInSubmitStatus === 'submitting'}
             />
+            {checkInError && (
+              <p className="client-checkin-error" role="alert">
+                {checkInError}
+              </p>
+            )}
+            {checkInSubmitStatus === 'done' && (
+              <p className="client-checkin-success">Check-in submitted. Your care team may follow up if needed.</p>
+            )}
+            <button
+              type="button"
+              className="auth-submit client-submit-btn"
+              onClick={submitCheckIn}
+              disabled={checkInSubmitStatus === 'submitting' || (reviewHistory.length === 0 && !clientExtraConcerns.trim())}
+            >
+              {checkInSubmitStatus === 'submitting' ? 'Submitting…' : 'Submit check-in'}
+            </button>
           </div>
         </section>
         <footer className="contact-section">

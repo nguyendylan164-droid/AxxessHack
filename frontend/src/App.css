@@ -51,17 +51,29 @@ body {
 }
 
 .navbar-inner {
+  position: relative;
   max-width: 1400px;
   margin: 0 auto;
   display: flex;
   gap: 2rem;
   align-items: center;
+  justify-content: space-between;
 }
 
-.program-title{
-  font-size: 40px;
-  font-weight:bold;
-  color: var(--text-secondary);
+.nav-left {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.program-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .nav-link--right {
@@ -69,16 +81,31 @@ body {
 }
 
 .nav-auth-links {
-  margin-left: auto;
   display: flex;
   gap: 0.5rem;
 }
 
 .nav-auth {
-  margin-left: auto;
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+.nav-btn-logout {
+  padding: 0.4rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: transparent;
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.nav-btn-logout:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .nav-user {

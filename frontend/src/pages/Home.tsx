@@ -9,13 +9,15 @@ import { EscalationsPanel } from '../components/EscalationsPanel'
 import type { SwipeStackCard } from '../components/SwipeStack'
 import type { EscalationItem } from '../types/tasks'
 import {
-  buildTasksFromReports,
+  buildTasksFromEscalationsOnly,
   loadCompletedTaskIds,
+  loadCompletedTaskIdsForClient,
   saveCompletedTaskIds,
+  saveCompletedTaskIdsForClient,
 } from '../types/tasks'
+import { getEmr } from '../data/api'
 import {
   SAMPLE_REVIEW_ITEMS,
-  INITIAL_ESCALATIONS,
   AI_SUMMARY,
   AI_AUTOMATION,
 } from '../data/mockData'
@@ -65,23 +67,119 @@ function escalationSeverityFromCard(severity: 'mild' | 'moderate' | 'severe' | u
 }
 
 export function Home() {
-  const { session, profile, loading } = useAuth()
+  const { session, profile } = useAuth()
   const { selectedPatientId } = usePatientSelection()
   const isClient = profile?.role === 'client'
+  // When client: show their own data in dashboard. When clinician: show selected dropdown client.
+  const effectivePatientId = isClient ? (session?.user?.id ?? '') : selectedPatientId
 
   const [reviewItems, setReviewItems] = useState<SwipeStackCard[]>(() => [...SAMPLE_REVIEW_ITEMS])
-  const [escalations, setEscalations] = useState<EscalationItem[]>(() => [...INITIAL_ESCALATIONS])
+  const [, setEscalations] = useState<EscalationItem[]>([])
   const [completedTaskIds, setCompletedTaskIds] = useState<Set<string>>(loadCompletedTaskIds)
   const [clientExtraConcerns, setClientExtraConcerns] = useState('')
   const [reviewHistory, setReviewHistory] = useState<ReviewChoice[]>([])
   const [checkInSubmitStatus, setCheckInSubmitStatus] = useState<'idle' | 'submitting' | 'done' | 'error'>('idle')
   const [checkInError, setCheckInError] = useState<string | null>(null)
 
+  // Clinician: single state object to avoid multiple synchronous setState in effects
+  const [clinicianState, setClinicianState] = useState({
+    escalations: [] as EscalationItem[],
+    summary: AI_SUMMARY,
+    summaryAutomation: AI_AUTOMATION as string[],
+    loading: false,
+    completedTaskIds: new Set<string>(),
+  })
+
   useEffect(() => {
     saveCompletedTaskIds(completedTaskIds)
   }, [completedTaskIds])
 
-  const tasks = useMemo(() => buildTasksFromReports(escalations), [escalations])
+  // Load selected client's check-ins and EMR (dashboard). All updates in async callback to avoid sync setState in effect.
+  useEffect(() => {
+    if (!effectivePatientId) {
+      setClinicianState({
+        escalations: [],
+        summary: AI_SUMMARY,
+        summaryAutomation: AI_AUTOMATION,
+        loading: false,
+        completedTaskIds: new Set(),
+      })
+      return
+    }
+
+    setClinicianState((prev) => ({ ...prev, loading: true }))
+
+    const mapCheckInToEscalation = (row: {
+      id: string
+      user_id: string
+      responses: Record<string, unknown>
+      concern_level: string
+      red_flags: string[]
+      created_at: string
+    }): EscalationItem => {
+      const severity = (row.concern_level === 'high' ? 'high' : row.concern_level === 'medium' ? 'medium' : 'low') as 'low' | 'medium' | 'high'
+      const detail = row.red_flags?.length
+        ? row.red_flags.join(' · ')
+        : (typeof row.responses?.extra_concerns === 'string' ? row.responses.extra_concerns : '') || 'Check-in submitted'
+      return {
+        id: row.id,
+        title: `Check-in: ${row.concern_level} concern`,
+        detail: detail.slice(0, 120) + (detail.length > 120 ? '…' : ''),
+        severity,
+      }
+    }
+
+    Promise.all([
+      supabase
+        .from('aftercare_check_ins')
+        .select('id,user_id,responses,concern_level,red_flags,created_at')
+        .eq('user_id', effectivePatientId)
+        .order('created_at', { ascending: false })
+        .then(({ data, error }) => {
+          if (error) return []
+          return (data ?? []).filter((r: { concern_level: string }) => r.concern_level !== 'low').map(mapCheckInToEscalation)
+        }),
+      getEmr(effectivePatientId).catch(() => null),
+    ])
+      .then(([escalationList, emr]) => {
+        let summary = 'No EMR on file for this client.'
+        let summaryAutomation: string[] = []
+        if (emr) {
+          const parts: string[] = []
+          if (emr.last_visit) parts.push(`Last visit: ${emr.last_visit}`)
+          if (emr.conditions?.length) parts.push(`Conditions: ${emr.conditions.join(', ')}`)
+          if (emr.medications?.length) parts.push(`Medications: ${emr.medications.join(', ')}`)
+          if (emr.visit_notes) parts.push(emr.visit_notes)
+          if (emr.alerts?.length) parts.push(`Alerts: ${emr.alerts.join(', ')}`)
+          summary = parts.length ? parts.join('\n\n') : 'No EMR on file.'
+          summaryAutomation = ['Summary from EMR', 'Check-ins from aftercare submissions']
+        }
+        setClinicianState({
+          escalations: escalationList,
+          summary,
+          summaryAutomation,
+          loading: false,
+          completedTaskIds: loadCompletedTaskIdsForClient(effectivePatientId),
+        })
+      })
+  }, [effectivePatientId])
+
+  useEffect(() => {
+    saveCompletedTaskIdsForClient(effectivePatientId, clinicianState.completedTaskIds)
+  }, [effectivePatientId, clinicianState.completedTaskIds])
+
+  const clinicianTasks = useMemo(
+    () => buildTasksFromEscalationsOnly(clinicianState.escalations),
+    [clinicianState.escalations]
+  )
+  const toggleClinicianTaskCompleted = useCallback((id: string) => {
+    setClinicianState((prev) => {
+      const next = new Set(prev.completedTaskIds)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return { ...prev, completedTaskIds: next }
+    })
+  }, [])
 
   const toggleTaskCompleted = useCallback((id: string) => {
     setCompletedTaskIds((prev) => {
@@ -120,7 +218,7 @@ export function Home() {
 
   const onReset = useCallback(() => {
     setReviewItems([...SAMPLE_REVIEW_ITEMS])
-    setEscalations([...INITIAL_ESCALATIONS])
+    setEscalations([])
     setReviewHistory([])
   }, [])
 
@@ -185,18 +283,22 @@ export function Home() {
     )
   }
 
-  // —— Client view: full-screen review queue + insert message ———
-  if (isClient) {
-    return (
-      <div className="home-page home-page--client">
-        <section className="dashboard dashboard--client">
+  // —— Signed-in: one page with Client (review queue + check-in) and Clinician (3 columns) in one place ———
+  return (
+    <div className="home-page home-page--unified">
+      <section className="dashboard dashboard--unified">
+        {/* Client section: review queue + check-in (everyone sees this) */}
+        <div className="unified-client-section">
+          <h2 className="unified-section-title">
+            {isClient ? 'Your check-in' : 'Review queue'}
+          </h2>
           <div className="client-review-full">
             <ReviewQueue
               items={reviewItems}
               onEscalate={onEscalate}
               onNoAction={onNoAction}
               onReset={onReset}
-              fullScreen
+              fullScreen={false}
             />
           </div>
           <div className="client-insert-message">
@@ -229,48 +331,41 @@ export function Home() {
               {checkInSubmitStatus === 'submitting' ? 'Submitting…' : 'Submit check-in'}
             </button>
           </div>
-        </section>
-        <footer className="contact-section">
-          <h2 className="contact-title">Contact</h2>
-          <p className="contact-text">
-            Built to track progress between visits and surface what matters to clinicians.
-          </p>
-          <div className="contact-links">
-            <a href="mailto:hello@example.com">hello@example.com</a>
-          </div>
-        </footer>
-      </div>
-    )
-  }
+        </div>
 
-  // —— Clinician view: patient dropdown in navbar (top right), 3 columns ———
-  return (
-    <div className="home-page">
-      <section className="dashboard">
-        <div className="dashboard-columns">
-          <div className="dashboard-col dashboard-col--summary">
-            <div className="summary-card">
-              <h2 className="summary-title">Progress summary</h2>
-              <p className="summary-text">{AI_SUMMARY}</p>
-              <div className="automation-list">
-                <span className="automation-label">Automated</span>
-                <ul>
-                  {AI_AUTOMATION.map((item, i) => (
-                    <li key={i}>{item}</li>
-                  ))}
-                </ul>
+        {/* Clinician section: Progress summary, Tasks, Escalations (everyone sees this; data is for selected/current user) */}
+        <div className="unified-dashboard-section">
+          <h2 className="unified-section-title">Progress & tasks</h2>
+          {clinicianState.loading && (
+            <p className="clinician-loading">Loading client data…</p>
+          )}
+          <div className="dashboard-columns">
+            <div className="dashboard-col dashboard-col--summary">
+              <div className="summary-card">
+                <h2 className="summary-title">Progress summary</h2>
+                <p className="summary-text">
+                  {effectivePatientId ? clinicianState.summary : 'Select a client from the dropdown to view progress and EMR.'}
+                </p>
+                <div className="automation-list">
+                  <span className="automation-label">Automated</span>
+                  <ul>
+                    {clinicianState.summaryAutomation.map((item, i) => (
+                      <li key={i}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="dashboard-col dashboard-col--tasks">
-            <TasksPanel
-              tasks={tasks}
-              completedTaskIds={completedTaskIds}
-              toggleTaskCompleted={toggleTaskCompleted}
-            />
-          </div>
-          <div className="dashboard-col dashboard-col--escalations">
-            <EscalationsPanel escalations={escalations} />
+            <div className="dashboard-col dashboard-col--tasks">
+              <TasksPanel
+                tasks={clinicianTasks}
+                completedTaskIds={clinicianState.completedTaskIds}
+                toggleTaskCompleted={toggleClinicianTaskCompleted}
+              />
+            </div>
+            <div className="dashboard-col dashboard-col--escalations">
+              <EscalationsPanel escalations={clinicianState.escalations} />
+            </div>
           </div>
         </div>
       </section>
@@ -278,7 +373,7 @@ export function Home() {
       <footer className="contact-section">
         <h2 className="contact-title">Contact</h2>
         <p className="contact-text">
-          Built to track patient progress between visits and surface what matters to clinicians.
+          Built to track progress between visits and surface what matters to clinicians.
         </p>
         <div className="contact-links">
           <a href="mailto:hello@example.com">hello@example.com</a>

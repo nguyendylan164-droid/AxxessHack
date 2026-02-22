@@ -39,6 +39,12 @@ body {
   box-shadow: 0 1px 0 rgba(37, 99, 235, 0.06);
 }
 
+.Logo{
+  height: 52px;
+  width: 52px;
+  
+}
+
 .navbar-inner {
   max-width: 1200px;
   margin: 0 auto;

@@ -15,9 +15,11 @@ function Layout() {
 
   return (
     <div className="layout">
+      
       <nav className="navbar">
         <div className="navbar-inner">
-          <Link to="/" className="nav-link">Home</Link>
+          <img src = "/Logo.png" alt="Axxess Logo" className="Logo"/>
+          <Link to="/" className="nav-link">Clinician</Link>
           <Link to="/about" className="nav-link">About</Link>
           {!loading && session && isClinician && (
             <div className="nav-patient-wrap">

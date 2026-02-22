@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { Routes, Route, Link, Outlet } from 'react-router-dom'
 import './App.css'
@@ -89,6 +90,36 @@ function Layout() {
       <main>
         <Outlet />
       </main>
+=======
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+import { SymptomCard } from './components/SymptomCard'
+import './App.css'
+
+function App() {
+  return (
+    <>
+      <div>
+        <a href="https://vite.dev" target="_blank">
+          <img src={viteLogo} className="logo" alt="Vite logo" />
+        </a>
+        <a href="https://react.dev" target="_blank">
+          <img src={reactLogo} className="logo react" alt="React logo" />
+        </a>
+      </div>
+      <h1>Vite + React</h1>
+      <div className="card">
+        <SymptomCard
+          subject="Night cough"
+          description="Patient reports occasional night cough. Allergy season approaching - continue daily controller."
+          onYes={() => alert('Yes')}
+          onNo={() => alert('No')}
+        />
+      </div>
+      <p className="read-the-docs">
+        Click on the Vite and React logos to learn more
+      </p>
+>>>>>>> Stashed changes
     </>
   )
 }

@@ -1,0 +1,55 @@
+.symptom-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  max-width: 420px;
+}
+
+.symptom-card__subject {
+  margin: 0 0 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.symptom-card__description {
+  margin: 0 0 1.25rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #444;
+}
+
+.symptom-card__actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.symptom-card__btn {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+}
+
+.symptom-card__btn--yes {
+  background: #22c55e;
+  color: #fff;
+}
+
+.symptom-card__btn--yes:hover {
+  background: #16a34a;
+}
+
+.symptom-card__btn--no {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.symptom-card__btn--no:hover {
+  background: #d1d5db;
+}

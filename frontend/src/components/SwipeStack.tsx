@@ -14,9 +14,10 @@ export interface SwipeStackProps {
   cards: SwipeStackCard[]
   onChoice: (direction: 'left' | 'right') => void
   disabled?: boolean
+  fullScreen?: boolean
 }
 
-export function SwipeStack({ cards, onChoice, disabled }: SwipeStackProps) {
+export function SwipeStack({ cards, onChoice, disabled, fullScreen }: SwipeStackProps) {
   const [exiting, setExiting] = useState<{ id: string; direction: 'left' | 'right' } | null>(null)
 
   const handleChoice = useCallback(
@@ -35,8 +36,8 @@ export function SwipeStack({ cards, onChoice, disabled }: SwipeStackProps) {
   const visibleStack = cards.slice(0, 3)
 
   return (
-    <div className="card-stack-wrap">
-      <div className="card-stack">
+    <div className={`card-stack-wrap ${fullScreen ? 'card-stack-wrap--full' : ''}`}>
+      <div className={`card-stack ${fullScreen ? 'card-stack--full' : ''}`}>
         {visibleStack.map((card, index) => {
           const isTop = index === 0
           const isExiting = exiting?.id === card.id

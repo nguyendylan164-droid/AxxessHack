@@ -742,6 +742,14 @@ body {
   line-height: 1.4;
 }
 
+.stack-card-description {
+  margin: 0.75rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
 .stack-card-severity {
   position: absolute;
   top: 0.75rem;

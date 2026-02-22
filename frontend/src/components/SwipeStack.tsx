@@ -7,6 +7,7 @@ export interface SwipeStackCard {
   id: string
   name: string
   tagline: string
+  description?: string
   severity?: 'mild' | 'moderate' | 'severe'
 }
 
@@ -48,7 +49,7 @@ export function SwipeStack({ cards, onChoice, disabled, fullScreen }: SwipeStack
               className={`stack-card ${isTop ? 'stack-card--top' : 'stack-card--back'} ${isExiting ? `stack-card--exit-${exitDir}` : ''}`}
               style={isExiting ? { transitionDuration: `${EXIT_DURATION_MS}ms` } : undefined}
             >
-              <SymptomCard name={card.name} tagline={card.tagline} severity={card.severity} />
+              <SymptomCard name={card.name} tagline={card.tagline} description={card.description} severity={card.severity} />
             </div>
           )
         })}
@@ -60,18 +61,18 @@ export function SwipeStack({ cards, onChoice, disabled, fullScreen }: SwipeStack
             className="card-btn card-btn--nope"
             onClick={() => handleChoice('left')}
             disabled={!!exiting || !!disabled}
-            aria-label="Escalate"
+            aria-label="Disagree"
           >
-            <span className="card-btn-label">Escalate</span>
+            <span className="card-btn-label">Disagree</span>
           </button>
           <button
             type="button"
             className="card-btn card-btn--match"
             onClick={() => handleChoice('right')}
             disabled={!!exiting || !!disabled}
-            aria-label="No action needed"
+            aria-label="Agree"
           >
-            <span className="card-btn-label">No action</span>
+            <span className="card-btn-label">Agree</span>
           </button>
         </div>
       )}

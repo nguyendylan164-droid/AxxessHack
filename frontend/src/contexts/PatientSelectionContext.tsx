@@ -1,7 +1,4 @@
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react'
-import { MOCK_PATIENTS } from '../data/mockData'
-
-const defaultId = MOCK_PATIENTS[0]?.id ?? ''
 
 interface PatientSelectionContextValue {
   selectedPatientId: string
@@ -11,7 +8,7 @@ interface PatientSelectionContextValue {
 const PatientSelectionContext = createContext<PatientSelectionContextValue | null>(null)
 
 export function PatientSelectionProvider({ children }: { children: ReactNode }) {
-  const [selectedPatientId, setSelectedPatientId] = useState(defaultId)
+  const [selectedPatientId, setSelectedPatientId] = useState('')
   const setter = useCallback((id: string) => setSelectedPatientId(id), [])
   return (
     <PatientSelectionContext.Provider value={{ selectedPatientId, setSelectedPatientId: setter }}>

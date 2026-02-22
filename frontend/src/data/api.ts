@@ -9,6 +9,21 @@
  * Keep the same shapes (ReviewItem, EscalationItem, etc.) so components stay compatible.
  */
 
+const API_BASE = (import.meta.env.VITE_API_URL as string) ?? ''
+
+export interface ClientOption {
+  id: string
+  name: string
+  lastVisit: string
+}
+
+export async function getClients(): Promise<ClientOption[]> {
+  const res = await fetch(`${API_BASE}/api/users/clients`)
+  if (!res.ok) throw new Error(await res.text().catch(() => res.statusText))
+  const data = await res.json()
+  return data.clients ?? []
+}
+
 export async function getReviewItems(): Promise<import('../data/mockData').ReviewItem[]> {
   // TODO: const res = await fetch('/api/cards/generate'); return res.json();
   const { SAMPLE_REVIEW_ITEMS } = await import('../data/mockData')

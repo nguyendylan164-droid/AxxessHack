@@ -8,11 +8,13 @@ export interface ReviewQueueProps {
   onReset: () => void
   /** When true, section and cards use full-screen layout (client view) */
   fullScreen?: boolean
+  /** When true, interactions have no effect (e.g. clinician viewing client card) */
+  disabled?: boolean
 }
 
-export function ReviewQueue({ items, onEscalate, onNoAction, onReset, fullScreen }: ReviewQueueProps) {
+export function ReviewQueue({ items, onEscalate, onNoAction, onReset, fullScreen, disabled }: ReviewQueueProps) {
   const handleChoice = (direction: 'left' | 'right') => {
-    if (items.length === 0) return
+    if (items.length === 0 || disabled) return
     const top = items[0]
     if (direction === 'left') {
       onEscalate(top)
@@ -32,12 +34,12 @@ export function ReviewQueue({ items, onEscalate, onNoAction, onReset, fullScreen
       {items.length === 0 ? (
         <div className="card-empty">
           <p className="card-empty-text">Queue clear</p>
-          <button type="button" className="btn-reset" onClick={onReset}>
+          <button type="button" className="btn-reset" onClick={onReset} disabled={disabled}>
             Reload sample
           </button>
         </div>
       ) : (
-        <SwipeStack cards={items} onChoice={handleChoice} fullScreen={fullScreen} />
+        <SwipeStack cards={items} onChoice={handleChoice} fullScreen={fullScreen} disabled={disabled} />
       )}
     </div>
   )

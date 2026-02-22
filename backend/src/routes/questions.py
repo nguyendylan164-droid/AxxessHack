@@ -10,6 +10,7 @@ router = APIRouter(prefix="/api/cards", tags=["cards"])
 
 class GenerateQuestionRequest(BaseModel):
     user_id: str
+    transcript_emr: str
 
 class Card(BaseModel):
     id: str
@@ -25,7 +26,7 @@ def generate_cards(req: GenerateQuestionRequest):
         if not emr_report:
             raise HTTPException(status_code=404, detail="EMR not found for user")
 
-        return generate_questions(emr_report)
+        return generate_questions(emr_report, req.transcript_emr)
     except HTTPException:
         raise
     except ValueError as e:

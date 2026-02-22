@@ -19,23 +19,40 @@ def generate_questions(emr_text: str) -> List[Dict[str, Any]]:
         raise ValueError("emr_text is required")
 
     system_prompt = (
-        "You are a clinical assistant. "
-        "Return ONLY valid JSON array. No markdown, no extra text."
+        "You are a clinical follow-up question generator and diagnostic assistant for post-visit after care. "
+        "Output MUST be a valid JSON array only. "
+        "Do not include markdown, code fences, commentary, or trailing text. "
+        "Do not invent diagnoses, labs, or medications not present in the EMR. "
+        "Focus on actionable follow-up and patient safety."
     )
 
     user_prompt = f"""
-    Given the EMR below, create 2-7 follow-up after-care cards.
-    Each card should be a yes/no question.
-
-    Return JSON array with objects containing:
-    - id (string)
-    - title (string)
-    - description (string)
-    - rationale (string)
-    - category (string)
+    Task:
+    Generate follow-up aftercare cards/questions from the EMR.
 
     EMR:
     \"\"\"{emr_text}\"\"\"
+
+    Requirements:
+    - Return as many cards as needed.
+    - Every card must be a yes/no question relevant to the EMR.
+    - Prioritize high-risk and time-sensitive issues first.
+    - Questions must be specific, plain language, and patient-facing.
+    - Avoid duplicate or overlapping questions.
+
+    Output format:
+    Return ONLY a JSON array of objects with exactly these keys:
+    - id: string (format "q1", "q2", ...)
+    - title: string (short yes/no question, max 80 chars, ends with "?")
+    - description: string (1 sentence, what to check/ask)
+    - rationale: string (1 sentence, why this matters clinically)
+    - category: string (one of: "medication", "symptom", "red_flag", "recovery", "follow_up")
+
+    Quality rules:
+    - Include at least 1 card in category "red_flag" when EMR suggests any potential complication.
+    - Use clinically meaningful distinctions (e.g., worsening SOB vs mild stable SOB).
+    - Keep each field concise and non-redundant.
+    - If EMR lacks detail, still generate conservative, general follow-up cards without fabricating facts.
     """
 
     content = send_msg(

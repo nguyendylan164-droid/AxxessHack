@@ -68,19 +68,64 @@ def generate_questions(emr_report: Dict[str, Any], transcript_emr: str) -> List[
         [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
-        ]
+        ],
+        max_tokens=2000,
     )
 
-    cleaned = _strip_code_fences(content)
+    return _parse_cards(content)
 
+
+def generate_questions_from_emr_text(emr_text: str) -> List[Dict[str, Any]]:
+    """Generate follow-up cards from raw EMR text (e.g., from formatted EMR or visit notes)."""
+    if not emr_text or not emr_text.strip():
+        raise ValueError("emr_text is required")
+
+    system_prompt = (
+        "You are a clinical follow-up question generator for post-visit after care. "
+        "Output MUST be a valid JSON array only. No markdown, no code fences, no commentary. "
+        "Do not invent diagnoses or medications not in the input. Focus on actionable follow-up."
+    )
+
+    user_prompt = f"""
+Generate follow-up aftercare cards from this EMR/clinical summary:
+
+\"\"\"
+{emr_text.strip()}
+\"\"\"
+
+Requirements:
+- Return 6–12 cards as a JSON array.
+- Each card: yes/no question relevant to the patient.
+- Prioritize high-risk and time-sensitive issues first.
+- Plain language, patient-facing.
+
+Output format (JSON array only):
+- id: string ("q1", "q2", ...)
+- title: string (short question, ends with "?")
+- description: string (1–2 sentences, what to check/ask)
+- rationale: string (why this matters clinically)
+- category: string (one of: "medication", "symptom", "red_flag", "recovery", "follow_up")
+"""
+
+    content = send_msg(
+        [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        max_tokens=2000,
+    )
+
+    return _parse_cards(content)
+
+
+def _parse_cards(content: str) -> List[Dict[str, Any]]:
+    cleaned = _strip_code_fences(content)
     try:
         cards = json.loads(cleaned)
     except Exception as exc:
         raise ValueError(f"Model did not return valid JSON: {exc}") from exc
-
     if not isinstance(cards, list):
         raise ValueError("Model output must be a JSON array")
-
     required = {"id", "title", "description"}
     for i, card in enumerate(cards):
         if not isinstance(card, dict):
@@ -88,5 +133,4 @@ def generate_questions(emr_report: Dict[str, Any], transcript_emr: str) -> List[
         missing = required - set(card.keys())
         if missing:
             raise ValueError(f"Card at index {i} missing fields: {sorted(missing)}")
-
     return cards

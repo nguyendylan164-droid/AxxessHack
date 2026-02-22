@@ -7,8 +7,8 @@ export interface EscalationsPanelProps {
 export function EscalationsPanel({ escalations }: EscalationsPanelProps) {
   return (
     <aside className="escalations-panel">
-      <h2 className="panel-title">Escalations</h2>
-      <p className="panel-desc">Issues and progression spikes for follow-up.</p>
+      <h2 className="panel-title">Notice</h2>
+      <p className="panel-desc">Items you agreed need attention, plus check-in alerts.</p>
       <ul className="escalation-list">
         {escalations.map((e) => (
           <li key={e.id} className={`escalation-item escalation-item--${e.severity}`}>
@@ -17,7 +17,7 @@ export function EscalationsPanel({ escalations }: EscalationsPanelProps) {
           </li>
         ))}
       </ul>
-      {escalations.length === 0 && <p className="panel-empty">No escalations.</p>}
+      {escalations.length === 0 && <p className="panel-empty">No notices yet.</p>}
     </aside>
   )
 }

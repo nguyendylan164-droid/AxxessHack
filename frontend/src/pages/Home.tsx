@@ -15,7 +15,7 @@ import {
   saveCompletedTaskIds,
   saveCompletedTaskIdsForClient,
 } from '../types/tasks'
-import { getEmr } from '../data/api'
+import { getEmr, getAICards, type AICard } from '../data/api'
 import {
   SAMPLE_REVIEW_ITEMS,
   AI_SUMMARY,
@@ -31,30 +31,30 @@ interface ReviewChoice {
   name: string
   tagline: string
   severity?: 'mild' | 'moderate' | 'severe'
-  action: 'escalate' | 'no_action'
+  action: 'agree' | 'disagree'
 }
 
 function computeConcernAndFlags(
   history: ReviewChoice[],
   extraConcerns: string
 ): { concernLevel: ConcernLevel; redFlags: string[] } {
-  const escalated = history.filter((h) => h.action === 'escalate')
+  const agreed = history.filter((h) => h.action === 'agree')
   const combined = extraConcerns.toLowerCase()
   const redFlags: string[] = []
-  escalated.forEach((h) => redFlags.push(`Escalated: ${h.name}`))
+  agreed.forEach((h) => redFlags.push(`Agreed: ${h.name}`))
   const highKw = ['worse', 'severe', 'emergency', 'chest pain', 'can\'t breathe', '10/10']
   const medKw = ['worsening', 'moderate', 'concerning', 'worried', 'pain']
   if (highKw.some((kw) => combined.includes(kw))) {
     redFlags.push('High-concern wording in notes')
     return { concernLevel: 'high', redFlags }
   }
-  if (escalated.some((h) => h.severity === 'severe')) {
+  if (agreed.some((h) => h.severity === 'severe')) {
     return { concernLevel: 'high', redFlags }
   }
-  if (escalated.some((h) => h.severity === 'moderate')) {
+  if (agreed.some((h) => h.severity === 'moderate')) {
     return { concernLevel: 'medium', redFlags }
   }
-  if (medKw.some((kw) => combined.includes(kw)) || escalated.length > 0) {
+  if (medKw.some((kw) => combined.includes(kw)) || agreed.length > 0) {
     return { concernLevel: 'medium', redFlags }
   }
   return { concernLevel: 'low', redFlags }
@@ -66,6 +66,29 @@ function escalationSeverityFromCard(severity: 'mild' | 'moderate' | 'severe' | u
   return 'low'
 }
 
+function formatEmrAsText(emr: import('../data/api').EmrReport): string {
+  const parts: string[] = []
+  if (emr.last_visit) parts.push(`Last visit: ${emr.last_visit}`)
+  if (emr.conditions?.length) parts.push(`Conditions: ${emr.conditions.join(', ')}`)
+  if (emr.medications?.length) parts.push(`Medications: ${emr.medications.join(', ')}`)
+  if (emr.visit_notes) parts.push(emr.visit_notes)
+  if (emr.alerts?.length) parts.push(`Alerts: ${emr.alerts.join(', ')}`)
+  return parts.join('\n\n') || 'No EMR details.'
+}
+
+function aiCardToSwipeCard(card: AICard): SwipeStackCard {
+  const cat = card.category ?? ''
+  const severity: 'mild' | 'moderate' | 'severe' | undefined =
+    cat === 'red_flag' ? 'severe' : cat === 'symptom' ? 'moderate' : 'mild'
+  return {
+    id: card.id,
+    name: card.title,
+    tagline: card.description.slice(0, 80) + (card.description.length > 80 ? '…' : ''),
+    description: card.rationale ?? card.description,
+    severity,
+  }
+}
+
 export function Home() {
   const { session, profile } = useAuth()
   const { selectedPatientId } = usePatientSelection()
@@ -74,7 +97,7 @@ export function Home() {
   const effectivePatientId = isClient ? (session?.user?.id ?? '') : selectedPatientId
 
   const [reviewItems, setReviewItems] = useState<SwipeStackCard[]>(() => [...SAMPLE_REVIEW_ITEMS])
-  const [, setEscalations] = useState<EscalationItem[]>([])
+  const [agreedItems, setAgreedItems] = useState<EscalationItem[]>([])
   const [completedTaskIds, setCompletedTaskIds] = useState<Set<string>>(loadCompletedTaskIds)
   const [clientExtraConcerns, setClientExtraConcerns] = useState('')
   const [reviewHistory, setReviewHistory] = useState<ReviewChoice[]>([])
@@ -104,9 +127,14 @@ export function Home() {
         loading: false,
         completedTaskIds: new Set(),
       })
+      setReviewItems([...SAMPLE_REVIEW_ITEMS])
+      setAgreedItems([])
+      setReviewHistory([])
       return
     }
 
+    setAgreedItems([])
+    setReviewHistory([])
     setClinicianState((prev) => ({ ...prev, loading: true }))
 
     const mapCheckInToEscalation = (row: {
@@ -141,7 +169,7 @@ export function Home() {
         }),
       getEmr(effectivePatientId).catch(() => null),
     ])
-      .then(([escalationList, emr]) => {
+      .then(async ([escalationList, emr]) => {
         let summary = 'No EMR on file for this client.'
         let summaryAutomation: string[] = []
         if (emr) {
@@ -153,7 +181,18 @@ export function Home() {
           if (emr.alerts?.length) parts.push(`Alerts: ${emr.alerts.join(', ')}`)
           summary = parts.length ? parts.join('\n\n') : 'No EMR on file.'
           summaryAutomation = ['Summary from EMR', 'Check-ins from aftercare submissions']
+
+          try {
+            const emrText = formatEmrAsText(emr)
+            const aiCards = await getAICards(emrText)
+            setReviewItems(aiCards.map(aiCardToSwipeCard))
+          } catch {
+            setReviewItems([...SAMPLE_REVIEW_ITEMS])
+          }
+        } else {
+          setReviewItems([...SAMPLE_REVIEW_ITEMS])
         }
+
         setClinicianState({
           escalations: escalationList,
           summary,
@@ -168,9 +207,13 @@ export function Home() {
     saveCompletedTaskIdsForClient(effectivePatientId, clinicianState.completedTaskIds)
   }, [effectivePatientId, clinicianState.completedTaskIds])
 
+  const noticesForPanel = useMemo(
+    () => [...clinicianState.escalations, ...agreedItems],
+    [clinicianState.escalations, agreedItems]
+  )
   const clinicianTasks = useMemo(
-    () => buildTasksFromEscalationsOnly(clinicianState.escalations),
-    [clinicianState.escalations]
+    () => buildTasksFromEscalationsOnly(noticesForPanel),
+    [noticesForPanel]
   )
   const toggleClinicianTaskCompleted = useCallback((id: string) => {
     setClinicianState((prev) => {
@@ -190,35 +233,35 @@ export function Home() {
     })
   }, [])
 
-  const onEscalate = useCallback((item: SwipeStackCard) => {
+  const onAgree = useCallback((item: SwipeStackCard) => {
     setReviewHistory((prev) => [
       ...prev,
-      { id: item.id, name: item.name, tagline: item.tagline, severity: item.severity, action: 'escalate' },
+      { id: item.id, name: item.name, tagline: item.tagline, severity: item.severity, action: 'agree' },
     ])
     const severity = escalationSeverityFromCard(item.severity)
-    setEscalations((prev) => [
+    setAgreedItems((prev) => [
       ...prev,
       {
-        id: `esc-${item.id}`,
-        title: `Escalated: ${item.name}`,
-        detail: item.tagline,
+        id: `agree-${item.id}`,
+        title: item.name,
+        detail: item.description ?? item.tagline,
         severity,
       },
     ])
     setReviewItems((prev) => prev.filter((c) => c.id !== item.id))
   }, [])
 
-  const onNoAction = useCallback((item: SwipeStackCard) => {
+  const onDisagree = useCallback((item: SwipeStackCard) => {
     setReviewHistory((prev) => [
       ...prev,
-      { id: item.id, name: item.name, tagline: item.tagline, severity: item.severity, action: 'no_action' },
+      { id: item.id, name: item.name, tagline: item.tagline, severity: item.severity, action: 'disagree' },
     ])
     setReviewItems((prev) => prev.filter((c) => c.id !== item.id))
   }, [])
 
   const onReset = useCallback(() => {
     setReviewItems([...SAMPLE_REVIEW_ITEMS])
-    setEscalations([])
+    setAgreedItems([])
     setReviewHistory([])
   }, [])
 
@@ -295,8 +338,8 @@ export function Home() {
           <div className="client-review-full">
             <ReviewQueue
               items={reviewItems}
-              onEscalate={onEscalate}
-              onNoAction={onNoAction}
+              onAgree={onAgree}
+              onDisagree={onDisagree}
               onReset={onReset}
               fullScreen={false}
               disabled={!isClient}
@@ -365,7 +408,7 @@ export function Home() {
               />
             </div>
             <div className="dashboard-col dashboard-col--escalations">
-              <EscalationsPanel escalations={clinicianState.escalations} />
+              <EscalationsPanel escalations={noticesForPanel} />
             </div>
           </div>
         </div>

@@ -43,9 +43,29 @@ export async function getEmr(userId: string): Promise<EmrReport | null> {
 }
 
 export async function getReviewItems(): Promise<import('../data/mockData').ReviewItem[]> {
-  // TODO: const res = await fetch('/api/cards/generate'); return res.json();
   const { SAMPLE_REVIEW_ITEMS } = await import('../data/mockData')
   return SAMPLE_REVIEW_ITEMS
+}
+
+export interface AICard {
+  id: string
+  title: string
+  description: string
+  rationale?: string
+  category?: string
+}
+
+export async function getAICards(emrText: string): Promise<AICard[]> {
+  const res = await fetch(`${API_BASE}/api/cards/generate-from-text`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ emr_text: emrText }),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error((err as { detail?: string }).detail ?? 'Failed to generate AI cards')
+  }
+  return res.json()
 }
 
 export async function getEscalations(): Promise<import('../types/tasks').EscalationItem[]> {

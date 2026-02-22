@@ -1,18 +1,9 @@
 """Users API."""
 
 from fastapi import APIRouter, HTTPException
-from src.services.users_repo import get_users, get_user_by_id, get_clients_with_last_visit
+from src.services.users_repo import get_users, get_user_by_id
 
 router = APIRouter(prefix="/api/users", tags=["users"])
-
-
-@router.get("/clients")
-def list_clients():
-    """Return clients (role=client) with id, name, lastVisit for clinician dropdown."""
-    try:
-        return {"clients": get_clients_with_last_visit()}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("")

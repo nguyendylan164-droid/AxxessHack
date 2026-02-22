@@ -94,7 +94,7 @@ Generate follow-up aftercare cards from this EMR/clinical summary:
 \"\"\"
 
 Requirements:
-- Return 6–12 cards as a JSON array.
+- Return up to 6 cards as a JSON array.
 - Each card: yes/no question relevant to the patient.
 - Prioritize high-risk and time-sensitive issues first.
 - Plain language, patient-facing.

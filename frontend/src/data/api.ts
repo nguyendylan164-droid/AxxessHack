@@ -11,19 +11,6 @@
 
 const API_BASE = (import.meta.env.VITE_API_URL as string) ?? ''
 
-export interface ClientOption {
-  id: string
-  name: string
-  lastVisit: string
-}
-
-export async function getClients(): Promise<ClientOption[]> {
-  const res = await fetch(`${API_BASE}/api/users/clients`)
-  if (!res.ok) throw new Error(await res.text().catch(() => res.statusText))
-  const data = await res.json()
-  return data.clients ?? []
-}
-
 export interface EmrReport {
   user_id: string
   last_visit: string | null
@@ -83,6 +70,33 @@ export interface AgreedItemInput {
   title: string
   detail: string
   severity?: string
+}
+
+export interface ClinicianTask {
+  id: string
+  label: string
+  priority: 'high' | 'medium' | 'low'
+  source: string
+  category: 'Follow-up' | 'Medication' | 'Screening' | 'Routine' | 'Escalation'
+}
+
+export async function getClinicianTasks(
+  emrText: string | null,
+  agreedItems: AgreedItemInput[]
+): Promise<ClinicianTask[]> {
+  const res = await fetch(`${API_BASE}/api/tasks/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      emr_text: emrText || undefined,
+      agreed_items: agreedItems.length ? agreedItems : undefined,
+    }),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error((err as { detail?: string }).detail ?? 'Failed to generate clinician tasks')
+  }
+  return res.json()
 }
 
 export async function getProgressSummary(

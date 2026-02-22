@@ -1,17 +1,7 @@
 [
-  {
-    "id": "user_001",
-    "name": "Sarah Chen",
-    "dateOfBirth": "1985-03-22"
-  },
-  {
-    "id": "user_002",
-    "name": "Marcus Johnson",
-    "dateOfBirth": "1972-11-08"
-  },
-  {
-    "id": "user_003",
-    "name": "Elena Rodriguez",
-    "dateOfBirth": "1991-07-14"
-  }
+  {"id": "user_001", "name": "Sarah Chen", "dateOfBirth": "1985-03-22"},
+  {"id": "user_002", "name": "Marcus Johnson", "dateOfBirth": "1972-11-08"},
+  {"id": "user_003", "name": "Elena Rodriguez", "dateOfBirth": "1991-07-14"},
+  {"id": "user_004", "name": "James Park", "dateOfBirth": "1968-05-30"},
+  {"id": "user_005", "name": "Priya Sharma", "dateOfBirth": "1994-11-12"}
 ]

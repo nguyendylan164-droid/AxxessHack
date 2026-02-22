@@ -28,5 +28,25 @@
     "vitals": {"bp": "118/76", "respiratory": "clear"},
     "visitNotes": "Asthma well controlled on current regimen. Patient reports occasional night cough. Allergy season approaching - continue daily controller. PEF values within personal best. Follow up in 3 months or sooner if symptoms worsen.",
     "alerts": []
+  },
+  {
+    "user_id": "user_004",
+    "lastVisit": "2025-02-14",
+    "conditions": ["Atrial fibrillation", "Hypertension", "CHF"],
+    "medications": ["Apixaban 5mg twice daily", "Carvedilol 12.5mg twice daily", "Furosemide 20mg daily"],
+    "procedures": ["Cardiac ablation - 8 weeks ago"],
+    "vitals": {"bp": "122/78", "weight": "81kg", "hr": "72"},
+    "visitNotes": "AF well controlled post-ablation. Patient reports no palpitations. BP and weight stable. Advised to continue anticoagulation and diuretic, monitor fluid intake. Repeat echocardiogram in 6 months. Follow up in 4 weeks.",
+    "alerts": ["Monitor for signs of fluid overload", "CHF - daily weights recommended"]
+  },
+  {
+    "user_id": "user_005",
+    "lastVisit": "2025-02-09",
+    "conditions": ["Generalized anxiety disorder", "Insomnia"],
+    "medications": ["Sertraline 50mg daily", "Trazodone 50mg at bedtime"],
+    "procedures": [],
+    "vitals": {"bp": "112/70", "weight": "58kg"},
+    "visitNotes": "Patient reports improvement in anxiety symptoms since starting sertraline. Sleep quality better with trazodone. PHQ-4 score down from 8 to 4. Continue current regimen. Discussed coping strategies. Follow up in 4 weeks.",
+    "alerts": []
   }
 ]

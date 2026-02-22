@@ -1,5 +1,11 @@
+import os
+from pathlib import Path
 from dotenv import load_dotenv
-load_dotenv()
+
+# Load .env from backend dir, then repo root (so Supabase vars are available when run from backend/)
+_here = Path(__file__).resolve().parent
+load_dotenv(_here / ".env")
+load_dotenv(_here.parent / ".env")
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

@@ -12,7 +12,7 @@ export interface ReviewQueueProps {
   disabled?: boolean
 }
 
-export function ReviewQueue({ items, onAgree, onDisagree, onReset, fullScreen }: ReviewQueueProps) {
+export function ReviewQueue({ items, onAgree, onDisagree, onReset, fullScreen, disabled }: ReviewQueueProps) {
   const handleChoice = (direction: 'left' | 'right') => {
     if (items.length === 0 || disabled) return
     const top = items[0]

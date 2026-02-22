@@ -9,7 +9,7 @@ load_dotenv(_here.parent / ".env")
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.routes import users, emr, questions, report, streaming, transcript
+from src.routes import users, emr, questions, report, streaming, transcript, summary
 app = FastAPI()
 
 app.add_middleware(
@@ -26,6 +26,7 @@ app.include_router(questions.router)
 app.include_router(report.router)
 app.include_router(streaming.router)
 app.include_router(transcript.router)
+app.include_router(summary.router)
 
 @app.get("/")
 def root():

@@ -10,12 +10,10 @@ import type { SwipeStackCard } from '../components/SwipeStack'
 import type { EscalationItem } from '../types/tasks'
 import {
   buildTasksFromEscalationsOnly,
-  loadCompletedTaskIds,
   loadCompletedTaskIdsForClient,
-  saveCompletedTaskIds,
   saveCompletedTaskIdsForClient,
 } from '../types/tasks'
-import { getEmr, getAICards, type AICard } from '../data/api'
+import { getEmr, getAICards, getProgressSummary, type AICard } from '../data/api'
 import {
   SAMPLE_REVIEW_ITEMS,
   AI_SUMMARY,
@@ -98,7 +96,6 @@ export function Home() {
 
   const [reviewItems, setReviewItems] = useState<SwipeStackCard[]>(() => [...SAMPLE_REVIEW_ITEMS])
   const [agreedItems, setAgreedItems] = useState<EscalationItem[]>([])
-  const [completedTaskIds, setCompletedTaskIds] = useState<Set<string>>(loadCompletedTaskIds)
   const [clientExtraConcerns, setClientExtraConcerns] = useState('')
   const [reviewHistory, setReviewHistory] = useState<ReviewChoice[]>([])
   const [checkInSubmitStatus, setCheckInSubmitStatus] = useState<'idle' | 'submitting' | 'done' | 'error'>('idle')
@@ -107,23 +104,23 @@ export function Home() {
   // Clinician: single state object to avoid multiple synchronous setState in effects
   const [clinicianState, setClinicianState] = useState({
     escalations: [] as EscalationItem[],
+    emrText: null as string | null,
     summary: AI_SUMMARY,
     summaryAutomation: AI_AUTOMATION as string[],
+    summaryLoading: false,
     loading: false,
     completedTaskIds: new Set<string>(),
   })
-
-  useEffect(() => {
-    saveCompletedTaskIds(completedTaskIds)
-  }, [completedTaskIds])
 
   // Load selected client's check-ins and EMR (dashboard). All updates in async callback to avoid sync setState in effect.
   useEffect(() => {
     if (!effectivePatientId) {
       setClinicianState({
         escalations: [],
+        emrText: null,
         summary: AI_SUMMARY,
         summaryAutomation: AI_AUTOMATION,
+        summaryLoading: false,
         loading: false,
         completedTaskIds: new Set(),
       })
@@ -170,21 +167,12 @@ export function Home() {
       getEmr(effectivePatientId).catch(() => null),
     ])
       .then(async ([escalationList, emr]) => {
-        let summary = 'No EMR on file for this client.'
-        let summaryAutomation: string[] = []
-        if (emr) {
-          const parts: string[] = []
-          if (emr.last_visit) parts.push(`Last visit: ${emr.last_visit}`)
-          if (emr.conditions?.length) parts.push(`Conditions: ${emr.conditions.join(', ')}`)
-          if (emr.medications?.length) parts.push(`Medications: ${emr.medications.join(', ')}`)
-          if (emr.visit_notes) parts.push(emr.visit_notes)
-          if (emr.alerts?.length) parts.push(`Alerts: ${emr.alerts.join(', ')}`)
-          summary = parts.length ? parts.join('\n\n') : 'No EMR on file.'
-          summaryAutomation = ['Summary from EMR', 'Check-ins from aftercare submissions']
+        const emrText = emr ? formatEmrAsText(emr) : null
+        const summaryAutomation = ['AI-generated from EMR and agreed cards', 'Check-ins from aftercare submissions']
 
+        if (emr) {
           try {
-            const emrText = formatEmrAsText(emr)
-            const aiCards = await getAICards(emrText)
+            const aiCards = await getAICards(emrText!)
             setReviewItems(aiCards.map(aiCardToSwipeCard))
           } catch {
             setReviewItems([...SAMPLE_REVIEW_ITEMS])
@@ -193,19 +181,44 @@ export function Home() {
           setReviewItems([...SAMPLE_REVIEW_ITEMS])
         }
 
-        setClinicianState({
+        setClinicianState((prev) => ({
+          ...prev,
           escalations: escalationList,
-          summary,
+          emrText,
           summaryAutomation,
+          summaryLoading: true,
           loading: false,
           completedTaskIds: loadCompletedTaskIdsForClient(effectivePatientId),
-        })
+        }))
       })
   }, [effectivePatientId])
 
   useEffect(() => {
     saveCompletedTaskIdsForClient(effectivePatientId, clinicianState.completedTaskIds)
   }, [effectivePatientId, clinicianState.completedTaskIds])
+
+  // AI progress summary: regenerate when EMR or agreed items change (after initial load)
+  useEffect(() => {
+    if (!effectivePatientId || clinicianState.loading) return
+    const emrText = clinicianState.emrText ?? null
+    const agreedInputs = agreedItems.map((a) => ({
+      title: a.title,
+      detail: a.detail,
+      severity: a.severity,
+    }))
+    setClinicianState((p) => ({ ...p, summaryLoading: true }))
+    getProgressSummary(emrText, agreedInputs)
+      .then((summary) => {
+        setClinicianState((p) => ({ ...p, summary, summaryLoading: false }))
+      })
+      .catch((err) => {
+        setClinicianState((p) => ({
+          ...p,
+          summary: `Unable to generate summary: ${err instanceof Error ? err.message : String(err)}`,
+          summaryLoading: false,
+        }))
+      })
+  }, [effectivePatientId, clinicianState.loading, clinicianState.emrText, agreedItems])
 
   const noticesForPanel = useMemo(
     () => [...clinicianState.escalations, ...agreedItems],
@@ -221,15 +234,6 @@ export function Home() {
       if (next.has(id)) next.delete(id)
       else next.add(id)
       return { ...prev, completedTaskIds: next }
-    })
-  }, [])
-
-  const toggleTaskCompleted = useCallback((id: string) => {
-    setCompletedTaskIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
     })
   }, [])
 
@@ -388,7 +392,11 @@ export function Home() {
               <div className="summary-card">
                 <h2 className="summary-title">Progress summary</h2>
                 <p className="summary-text">
-                  {effectivePatientId ? clinicianState.summary : 'Select a client from the dropdown to view progress and EMR.'}
+                  {!effectivePatientId
+                    ? 'Select a client from the dropdown to view progress and EMR.'
+                    : clinicianState.summaryLoading
+                      ? 'Generating summary…'
+                      : clinicianState.summary}
                 </p>
                 <div className="automation-list">
                   <span className="automation-label">Automated</span>
